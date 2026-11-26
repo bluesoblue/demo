@@ -376,6 +376,34 @@ body.light .soc-pill svg [fill="#FFFFFF"],body.light .soc-ico svg [fill="#FFFFFF
 body.light .flag svg [stroke="#FFFFFF"]{stroke:#FFFFFF}
 body.light .soc-pill.more{color:var(--ink)}
 
+/* ===== EW8 template (EW8 form style, 22FUN green) ===== */
+body.ew8 .logo img{display:none}
+body.ew8 .logo .logo-ph{display:none}
+body.ew8 .logo{display:flex;align-items:center;justify-content:center;width:120px;height:44px;border:1.5px dashed var(--muted);border-radius:8px;color:var(--muted);font:600 12px var(--font);letter-spacing:.15em;text-decoration:none}
+body.ew8 .logo::after{content:"EW8 LOGO"}
+body.ew8 .auth{max-width:380px}
+body.ew8 .f-label{margin-bottom:6px;color:var(--ink);font-size:13px;font-weight:600;line-height:18px}
+body.ew8 .f-box,body.ew8 .f-codebox{height:42px;padding:0 12px;background:#1E1E21;border:1px solid #5A5A60;border-radius:4px}
+body.ew8.light .f-box,body.ew8.light .f-codebox{background:#FFFFFF;border-color:#D6D6D6}
+body.ew8 .f-box:focus-within{border-color:var(--lime)}
+body.ew8 .pin-box{border-radius:4px;border-color:#5A5A60}
+body.ew8 .f-input,body.ew8 .f-value{font-size:14px}
+body.ew8 .btn-primary,body.ew8 .btn-grey{height:42px;border-radius:4px;font-size:14px;font-weight:600;letter-spacing:.06em}
+body.ew8 .btn-primary{margin-top:24px}
+body.ew8 .btn-row .btn-primary{margin-top:0}
+body.ew8 .ref-toggle{color:var(--ink);font-size:13px;font-weight:600}
+body.ew8 .toggle{margin-top:14px}
+.ew-head{margin-top:16px;text-align:center}
+.ew-head h1{margin:0;font-size:15px;font-weight:700;line-height:22px}
+.ew-head p{margin:4px 0 0;color:var(--muted);font-size:11px;line-height:16px}
+.ew-steps{position:relative;display:flex;justify-content:space-between;width:224px;margin:18px auto 8px}
+.ew-steps::before{content:"";position:absolute;left:12px;right:12px;top:50%;height:2px;background:#3A3A40;transform:translateY(-50%)}
+.ew-steps .bar{position:absolute;left:12px;top:50%;height:2px;background:var(--lime);transform:translateY(-50%)}
+.ew-steps span{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#3A3A40;color:#C6C6C6;font-size:12px;font-weight:700}
+.ew-steps span.on{background:var(--grad);color:#FFFFFF}
+.ew-steps span.ok{background:var(--green);color:#FFFFFF}
+body.light .ew-steps::before,body.light .ew-steps span:not(.on):not(.ok){background:#E4E4E7}
+body.light .ew-steps span:not(.on):not(.ok){color:#71717A}
 /* ===== GOJUDI template (GOJUDI layout, 22FUN green colours) ===== */
 body.gj{--card:var(--bg-desktop)}
 body.gj .page{padding-top:56px}
@@ -468,7 +496,7 @@ var FLAGS={
 FLAGS.GB='<svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="#012169"/><path d="M0 0l20 20M20 0L0 20" stroke="#FFFFFF" stroke-width="4"/><path d="M0 0l20 20M20 0L0 20" stroke="#C8102E" stroke-width="1.4"/><path d="M10 0v20M0 10h20" stroke="#FFFFFF" stroke-width="6"/><path d="M10 0v20M0 10h20" stroke="#C8102E" stroke-width="3.4"/></svg>';
 FLAGS.CN='<svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="#DE2910"/><path d="M5 3.2l.9 2.7h2.8L6.4 7.6l.9 2.7L5 8.6 2.7 10.3l.9-2.7L1.3 5.9h2.8z" fill="#FFDE00"/></svg>';
 var LANGS=[['GB','English'],['TH','ภาษาไทย'],['KH','ខ្មែរ'],['VN','Tiếng Việt'],['CN','中文']];
-var GJ=CFG.template==='gojudi';
+var GJ=CFG.template==='gojudi', EW=CFG.template==='ew8';
 if(!CFG.showAuthToggle) CFG.curAuth='';
 var SUF=String(CFG.suFields||'u,m').split(',').map(function(x){return {u:'username',m:'mobile',e:'email'}[x];}).filter(Boolean); if(!SUF.length) SUF=['username'];
 var SU_TABS=CFG.suMethod==='tabs'&&SUF.length>1;
@@ -477,6 +505,7 @@ var ACC=String(CFG.accTypes||'u,m,e').split(',').map(function(x){return {u:'user
 var COUNTRIES=[['KH','Cambodia','+855'],['TH','Thailand','+66'],['VN','Vietnam','+84'],['MY','Malaysia','+60'],['ID','Indonesia','+62'],['PH','Philippines','+63']];
 var FOCUS=CFG.focus||'';
 if(CFG.theme==='light') document.body.classList.add('light');
+if(EW) document.body.classList.add('ew8');
 if(GJ){ document.body.classList.add('gj'); if(CFG.banner) document.body.classList.add('has-banner'); }
 var S = {tab:CFG.page, method:CFG.curMethod||(CFG.accountSwitch==='link'?'mobile':'username'), accMode:CFG.curAccMode||'username', auth:CFG.curAuth||CFG.defaultAuth, show:false, remember:true, agree:true, refOpen:false,
   id:'', pwd:'', pin:'', su_user:'', su_phone:'', su_pwd:'', su_pwd2:'', su_pin:'', su_pin2:'', su_ref:'',
@@ -559,7 +588,13 @@ function bannerHTML(){
   return '<div class="gj-banner">'+(typeof BANNER==='string'&&BANNER?'<img class="bn" src="'+BANNER+'" alt="">':'<span class="bn-tag">Banner placeholder</span>')+
     '<div class="gj-head">'+(typeof GJLOGO==='string'&&GJLOGO?'<span class="gj-logo"><img src="'+GJLOGO+'" alt="GOJUDI"></span>':'<span class="gj-logo">LOGO</span>')+'<span class="gj-title">'+pageTitle()+'</span></div></div>';
 }
+function ewHead(){
+  var st=Math.min(3,S.suStep);
+  return '<div class="ew-head"><h1>Please fill out the following details to sign up for FREE</h1><p>Fill in only real information. For your own benefit in withdrawing money</p></div>'+
+    '<div class="ew-steps" aria-label="Step '+st+' of 3"><i class="bar" style="width:'+((st-1)*100)+'px"></i>'+[1,2,3].map(function(n){return '<span class="'+(n===st?'on':n<st?'ok':'')+'"'+(n===st?' aria-current="step"':'')+'>'+n+'</span>';}).join('')+'</div>';
+}
 function head(t,extra){
+  if(EW&&S.tab==='signup'&&S.suStep<4) return ewHead()+(TT&&S.suStep===1?tabs2():'')+(extra||'');
   var b=GJ&&CFG.banner;
   var top=S.tab==='login'||S.tab==='forgot'&&S.fpStep===1||S.tab==='signup'&&S.suStep===1;
   if(TT&&S.tab!=='forgot'&&top) return tabs2()+(extra||'');
@@ -1034,7 +1069,7 @@ render();
   /* [key, name, hint, choices, liveSiteValue, pages(optional), defaultIfDifferent] */
   var GROUPS=[
     ['Template',[
-      ['template','Template','',[['ibs','22FUN'],['gojudi','GOJUDI']],'ibs']]],
+      ['template','Template','',[['ibs','22FUN'],['gojudi','GOJUDI'],['ew8','EW8']],'ibs']]],
     ['Theme',[
       ['theme','Colour mode','',[['dark','Dark'],['light','Light']],'dark']]],
     ['Try it',[
@@ -1075,10 +1110,12 @@ render();
   var PRESETS=[
     ['site','Live site','Exactly like the current site',{},'ibs'],
     ['new','New design','Flag + picker, eye, icons, UPPERCASE',{pinEye:'true',phoneIcon:'flag',codeDropdown:'true',btnIcon:'true',btnCase:'upper'},'ibs'],
+    ['esite','EW8 design','EW8 form style, 22FUN green',{},'ew8'],
+    ['eplus','EW8 + more','Language, icon social, PIN',{lang:'true',social:'icon',pinEye:'true'},'ew8'],
     ['gsite','GOJUDI design','GOJUDI layout, 22FUN green',{},'gojudi'],
     ['gplus','GOJUDI + more','Language, icon social on top, PIN',{lang:'true',social:'icon',socialPos:'top',showAuthToggle:'true',pinEye:'true'},'gojudi']
   ];
-  var TPL={ibs:{},'gojudi':{accTypes:'u,m',banner:'true',accountSwitch:'underline',topTabs:'false',social:'text',socialPos:'bottom',socialCount:'3',smsCode:'true',phoneLayout:'inline',phoneIcon:'flag',codeDropdown:'true',country:'TH',showAuthToggle:'false',pinEye:'true'}};
+  var TPL={ibs:{},ew8:{labelOutside:'true',showIcon:'false',btnCase:'upper',phoneIcon:'flag',codeDropdown:'true'},'gojudi':{accTypes:'u,m',banner:'true',accountSwitch:'underline',topTabs:'false',social:'text',socialPos:'bottom',socialCount:'3',smsCode:'true',phoneLayout:'inline',phoneIcon:'flag',codeDropdown:'true',country:'TH',showAuthToggle:'false',pinEye:'true'}};
   function siteOf(k){var t=TPL[V.template]||TPL.ibs;return (k in t)?t[k]:SITE[k];}
   var NODESIGN=['template'], MULTI=['accTypes','suFields'], TNAME={u:'Username',m:'Mobile',e:'Email'};
   var PAGES=[['login','Login'],['signup','Sign Up'],['forgot','Forgot Password']];
@@ -1089,7 +1126,7 @@ render();
   var DEMO=['walk','showErrors','demoResult'];
   var FOCUS='', HINT='';
   var HINTS={
-    template:{ibs:'22FUN template (live site)',gojudi:'GOJUDI layout in 22FUN green — banner, underline tabs, 16px fields, social login'},
+    template:{ibs:'22FUN template (live site)',ew8:'EW8 form style in 22FUN green — labels above, no icons, step bar',gojudi:'GOJUDI layout in 22FUN green — banner, underline tabs, 16px fields, social login'},
     theme:{dark:'Dark theme',light:'Light theme (GHero light colours, brand colour kept)'},
     banner:{'true':'Banner on — logo and title sit on the image','false':'Banner off — logo and title above the form'},
     smsCode:{'true':'SMS code field under the mobile number — tap Get code','false':'No SMS code field'},
@@ -1122,7 +1159,7 @@ render();
   var SRC=document.getElementById('pageSrc').textContent.replace(/<\\\/script>/g,'<'+'/script>');
   var q=new URLSearchParams(location.search), V={};
   Object.keys(DEF).forEach(function(k){V[k]=q.get(k)||DEF[k];});
-  if(V.template==='gojudi') Object.keys(TPL.gojudi).forEach(function(k){ if(!q.get(k)) V[k]=TPL.gojudi[k]; });
+  if(TPL[V.template]) Object.keys(TPL[V.template]).forEach(function(k){ if(!q.get(k)) V[k]=TPL[V.template][k]; });
   var $=function(id){return document.getElementById(id);};
   var pv=$('pv'), sc=$('scaler'), stage=$('stage'), panel=$('panel'), varBtn=$('varBtn');
   var openGroups={'Sign up':true,'Template':true,'Social & language':true,'Theme':true,'Try it':true,'Header':true,'Input field':true,'Password / PIN':true,'Button':false};
@@ -1141,7 +1178,7 @@ render();
   function changes(){return ALL.filter(function(o){return isDesign(o[0])&&applies(o)&&V[o[0]]!==siteOf(o[0]);}).length;}
   function presetOn(p){return ALL.filter(function(o){return isDesign(o[0]);}).every(function(o){return V[o[0]]===(p[3][o[0]]||siteOf(o[0]));});}
   function suWarn(){ var miss=V.suFields.split(',').filter(function(x){return V.accTypes.split(',').indexOf(x)<0;}); return miss.length?'<div class="opt-warn">⚠ Login can’t use '+miss.map(function(x){return TNAME[x];}).join(' / ')+' — add it in Header → Account types</div>':''; }
-  function refName(){return V.template==='gojudi'?'GOJUDI design':'live site';}
+  function refName(){return V.template==='gojudi'?'GOJUDI design':V.template==='ew8'?'EW8 design':'live site';}
   function draw(){
     $('pageSeg').innerHTML=PAGES.map(function(p){var on=V.page===p[0];return '<button type="button" data-k="page" data-v="'+p[0]+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'">'+p[1]+'</button>';}).join('');
     $('widthSeg').innerHTML=WIDTHS.map(function(p){var on=V.w===p[0];return '<button type="button" data-k="w" data-v="'+p[0]+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'">'+p[1]+'</button>';}).join('');
@@ -1199,7 +1236,7 @@ render();
   document.addEventListener('click',function(e){
     if(e.target.closest('#resetAll')){ ALL.forEach(function(o){ if(o[0]==='template') return; V[o[0]]=isDesign(o[0])?siteOf(o[0]):DEF[o[0]]; }); V.suStep='1'; V.fpStep='1'; RT={}; FOCUS=''; HINT='Everything reset to the '+refName()+' look'; load(); return; }
     var p=e.target.closest('[data-preset]');
-    if(p){ var pr=PRESETS.filter(function(x){return x[0]===p.dataset.preset;})[0]; ALL.forEach(function(o){ if(isDesign(o[0])) V[o[0]]=pr[3][o[0]]||siteOf(o[0]); }); HINT={site:'Back to the live site look',new:'New design applied — try Mobile and PIN',gsite:'GOJUDI design (22FUN green)',gplus:'GOJUDI with language, icon social on top and PIN'}[pr[0]]; load(); return; }
+    if(p){ var pr=PRESETS.filter(function(x){return x[0]===p.dataset.preset;})[0]; ALL.forEach(function(o){ if(isDesign(o[0])) V[o[0]]=pr[3][o[0]]||siteOf(o[0]); }); HINT={site:'Back to the live site look',new:'New design applied — try Mobile and PIN',esite:'EW8 form style in 22FUN green',eplus:'EW8 with language, icon social and PIN',gsite:'GOJUDI design (22FUN green)',gplus:'GOJUDI with language, icon social on top and PIN'}[pr[0]]; load(); return; }
     var b=e.target.closest('button[data-k]'); if(!b) return;
     var k=b.dataset.k;
     if(MULTI.indexOf(k)>=0&&b.dataset.t){ var cur=V[k].split(','), t=b.dataset.t, i=cur.indexOf(t); if(i>=0){ if(cur.length===1){ HINT='Keep at least one'; draw(); return; } cur.splice(i,1); } else cur.push(t); V[k]=['u','m','e'].filter(function(x){return cur.indexOf(x)>=0;}).join(','); }
@@ -1221,7 +1258,7 @@ render();
   $('open').addEventListener('click',function(){ window.open(URL.createObjectURL(new Blob([doc()],{type:'text/html'})),'_blank'); });
   $('dl').addEventListener('click',function(){
     var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([doc()],{type:'text/html'}));
-    a.download=(V.template==='gojudi'?'gojudi-':'22fun-')+V.page+(location.search?'-'+location.search.slice(1).replace(/[^a-z0-9]+/gi,'-').slice(0,60):'-site')+'.html'; a.click();
+    a.download=(V.template==='gojudi'?'gojudi-':V.template==='ew8'?'ew8-':'22fun-')+V.page+(location.search?'-'+location.search.slice(1).replace(/[^a-z0-9]+/gi,'-').slice(0,60):'-site')+'.html'; a.click();
   });
   load();
 })();
