@@ -73,6 +73,7 @@ details[open] summary::after{transform:rotate(-135deg)}
 .opt .seg{display:flex;width:196px;flex-shrink:0}
 .opt .seg button{flex:1;justify-content:center;min-width:0;height:28px;padding:0 6px;font-size:12px}
 .opt.wide{flex-wrap:wrap;row-gap:6px}
+.opt-warn{margin:6px 0 0 10px;padding:8px 10px;border-radius:8px;background:rgba(245,165,36,.12);color:#FCD34D;font-size:12px;line-height:17px}
 .opt.wide .opt-top{flex-basis:100%}
 .opt.wide .seg{width:100%}
 .site-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#84CC16}
@@ -136,6 +137,7 @@ input:focus{outline:none}
 .seg{display:grid;width:360px;margin:12px auto 0;padding:4px;background:var(--pill-bg);border-radius:30px}
 .seg-2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .seg-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.seg.seg-n2{width:240px}
 .seg-btn{position:relative;display:flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:6.4px 8.64px;border:0;border-radius:30px;background:transparent;color:var(--ink);font-size:14px;font-weight:600;line-height:21px;cursor:pointer}
 .seg-btn.on{background:var(--grad)}
 .badge{position:absolute;top:-10px;right:6px;padding:0 6px;border-radius:99px;background:var(--required);font-size:10px;font-weight:600;line-height:16px}
@@ -312,6 +314,7 @@ input:focus{outline:none}
   html,body{background:var(--bg-mobile)}
   .page{padding:8px 0 0}
   .seg{width:100%}
+  .seg.seg-n2{width:100%}
 }
 
 /* ===== Light theme (GHero "Color Behavior Light"; brand colours unchanged) ===== */
@@ -467,6 +470,9 @@ FLAGS.CN='<svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><re
 var LANGS=[['GB','English'],['TH','ภาษาไทย'],['KH','ខ្មែរ'],['VN','Tiếng Việt'],['CN','中文']];
 var GJ=CFG.template==='gojudi';
 if(!CFG.showAuthToggle) CFG.curAuth='';
+var SUF=String(CFG.suFields||'u,m').split(',').map(function(x){return {u:'username',m:'mobile',e:'email'}[x];}).filter(Boolean); if(!SUF.length) SUF=['username'];
+var SU_TABS=CFG.suMethod==='tabs'&&SUF.length>1;
+var TT=CFG.topTabs===true||CFG.topTabs==='underline';
 var ACC=String(CFG.accTypes||'u,m,e').split(',').map(function(x){return {u:'username',m:'mobile',e:'email'}[x];}).filter(Boolean); if(!ACC.length) ACC=['username'];
 var COUNTRIES=[['KH','Cambodia','+855'],['TH','Thailand','+66'],['VN','Vietnam','+84'],['MY','Malaysia','+60'],['ID','Indonesia','+62'],['PH','Philippines','+63']];
 var FOCUS=CFG.focus||'';
@@ -476,7 +482,7 @@ var S = {tab:CFG.page, method:CFG.curMethod||(CFG.accountSwitch==='link'?'mobile
   id:'', pwd:'', pin:'', su_user:'', su_phone:'', su_pwd:'', su_pwd2:'', su_pin:'', su_pin2:'', su_ref:'',
   fpStep:+(CFG.fpStep||1), fp_id:'', fp_code:'', fp_pwd:'', fp_pwd2:'', fp_pin:'', fp_pin2:'',
   suStep:+(CFG.suStep||1), su_bank:'', su_acc:'', su_name:'',
-  timer:0, err:{}, shake:false, loading:false, country:CFG.country, ccOpen:null, tipOpen:null, langOpen:false, lang:'GB', socOpen:false, su_sms:''};
+  timer:0, err:{}, shake:false, loading:false, country:CFG.country, ccOpen:null, tipOpen:null, langOpen:false, lang:'GB', socOpen:false, su_sms:'', su_email:'', su_ecode:''};
 var IC = {user:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 1024 1024" style="display: block; flex-shrink: 0"><path d="M512 -13Q565 -13 612 7Q658 27 693 62Q728 97 748 144Q768 190 768 243Q768 296 748 343Q728 389 693 424Q658 459 612 479Q565 499 512 499Q459 499 412 479Q366 459 331 424Q296 389 276 343Q256 296 256 243L256 243Q256 190 276 144Q296 97 331 62Q366 27 412 7Q459 -13 512 -13L512 -13ZM512 627Q618 627 711 647Q805 667 874.5 702Q944 737 984 784Q1024 830 1024 883L1024 1011L0 1011L0 883Q0 830 40 784Q80 737 149.5 702Q219 667 313 647Q406 627 512 627Z" fill="#FFFFFF"></path></svg>', mobile:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 1024 1024" style="display: block; flex-shrink: 0"><path d="M745 825L279 825L279 173L745 173L745 825ZM745 -13L279 -13Q241 -13 213.5 14.5Q186 42 186 80L186 918Q186 957 213.5 984Q241 1011 279 1011L745 1011Q783 1011 810.5 984Q838 957 838 918L838 80Q838 42 810.5 14.5Q783 -13 745 -13Z" fill="#FFFFFF"></path></svg>', email:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 1024 1024" style="display: block; flex-shrink: 0"><path d="M512 466L996 182Q975 152 942 133.5Q909 115 870 115L154 115Q114 115 81 133Q48 151 27 181L27 182L512 466ZM563 554Q552 561 538.5 564.5Q525 568 511 568Q497 568 484 564.5Q471 561 460 554L460 555L0 285L0 780Q0 843 45 888Q90 933 154 933L870 933Q934 933 978.5 888Q1023 843 1023 780L1023 285L563 554Z" fill="#FFFFFF"></path></svg>', lock:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 1024 1024" style="display: block; flex-shrink: 0"><path d="M804 371L771 371L771 243Q771 190 751 142Q731 95 695.5 60Q660 25 613 4Q566 -16 512 -16Q458 -16 411 4Q364 25 328.5 60Q293 95 273 142Q253 190 253 243L253 371L220 371Q180 371 151.5 399Q123 427 123 467L123 915Q123 955 151.5 983Q180 1011 220 1011L804 1011Q844 1011 872.5 983Q901 955 901 915L901 467Q901 427 872.5 399Q844 371 804 371ZM339 243Q339 172 389.5 121Q440 70 512 70Q584 70 634.5 121Q685 172 685 243L685 371L339 371L339 243ZM555 701L555 798Q555 816 542.5 828.5Q530 841 512 841Q494 841 481.5 828.5Q469 816 469 798L469 701Q449 690 437.5 670.5Q426 651 426 627Q426 591 451 566Q476 541 512 541Q548 541 573 566Q598 591 598 627Q598 651 586.5 670.5Q575 690 556 700L555 701Z" fill="#FFFFFF"></path></svg>', user14:'<svg aria-hidden="true" width="14" height="14" viewBox="0 0 1024 1024" style="display: block; flex-shrink: 0"><path d="M512 -13Q565 -13 612 7Q658 27 693 62Q728 97 748 144Q768 190 768 243Q768 296 748 343Q728 389 693 424Q658 459 612 479Q565 499 512 499Q459 499 412 479Q366 459 331 424Q296 389 276 343Q256 296 256 243L256 243Q256 190 276 144Q296 97 331 62Q366 27 412 7Q459 -13 512 -13L512 -13ZM512 627Q618 627 711 647Q805 667 874.5 702Q944 737 984 784Q1024 830 1024 883L1024 1011L0 1011L0 883Q0 830 40 784Q80 737 149.5 702Q219 667 313 647Q406 627 512 627Z" fill="#FFFFFF"></path></svg>', mobile14:'<svg aria-hidden="true" width="14" height="14" viewBox="0 0 1024 1024" style="display: block; flex-shrink: 0"><path d="M745 825L279 825L279 173L745 173L745 825ZM745 -13L279 -13Q241 -13 213.5 14.5Q186 42 186 80L186 918Q186 957 213.5 984Q241 1011 279 1011L745 1011Q783 1011 810.5 984Q838 957 838 918L838 80Q838 42 810.5 14.5Q783 -13 745 -13Z" fill="#FFFFFF"></path></svg>', email14:'<svg aria-hidden="true" width="14" height="14" viewBox="0 0 1024 1024" style="display: block; flex-shrink: 0"><path d="M512 466L996 182Q975 152 942 133.5Q909 115 870 115L154 115Q114 115 81 133Q48 151 27 181L27 182L512 466ZM563 554Q552 561 538.5 564.5Q525 568 511 568Q497 568 484 564.5Q471 561 460 554L460 555L0 285L0 780Q0 843 45 888Q90 933 154 933L870 933Q934 933 978.5 888Q1023 843 1023 780L1023 285L563 554Z" fill="#FFFFFF"></path></svg>',
   coin:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#FFFFFF"/><path d="M14.8 8.6c-.5-.9-1.6-1.4-2.8-1.4-1.6 0-2.8.8-2.8 2.1 0 3 5.8 1.6 5.8 4.6 0 1.3-1.3 2.2-3 2.2-1.3 0-2.5-.6-3-1.6M12 5.5v13" fill="none" stroke="#2B2B31" stroke-width="1.8" stroke-linecap="round"/></svg>',
   gift:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"><path d="M3 8h18v4H3zM4.5 12h15v9h-15z" fill="#FFFFFF"/><path d="M12 8v13" stroke="#2B2B31" stroke-width="2"/><path d="M12 8C10 4 6.5 4 6.5 6.2S10 8 12 8zm0 0c2-4 5.5-4 5.5-1.8S14 8 12 8z" fill="none" stroke="#FFFFFF" stroke-width="1.8"/></svg>',
@@ -555,11 +561,15 @@ function bannerHTML(){
 }
 function head(t,extra){
   var b=GJ&&CFG.banner;
-  if(CFG.topTabs&&(S.tab!=='forgot')&&(S.tab==='login'||S.suStep===1)) return tabs2()+(extra||'');
+  var top=S.tab==='login'||S.tab==='forgot'&&S.fpStep===1||S.tab==='signup'&&S.suStep===1;
+  if(TT&&S.tab!=='forgot'&&top) return tabs2()+(extra||'');
+  if(CFG.topTabs==='none'&&top) return extra||'';
   return (b?'':'<div class="title">'+t+'</div>')+(extra||'');
 }
 if(ACC.indexOf(S.method)<0) S.method=ACC[0];
-if(CFG.accountSwitch==='inline'&&(ACC.indexOf('username')<0||ACC.indexOf('mobile')<0)) S.accMode=ACC.indexOf('mobile')>=0&&ACC.indexOf('username')<0?'mobile':'username';
+if(ACC.indexOf(S.accMode)<0) S.accMode=ACC[0];
+S.suMethod=SUF.indexOf(CFG.curSuMethod)>=0?CFG.curSuMethod:SUF[0];
+function listOf(sk){return sk==='suMethod'?SUF:ACC;}
 var app = document.getElementById('app');
 
 /* ---------- helpers ---------- */
@@ -600,19 +610,20 @@ function field(o){
   function input(t,extra,im){return '<input class="f-input'+(extra||'')+'" type="'+t+'"'+(im?' inputmode="'+im+'"':'')+' placeholder="'+ph+'" aria-label="'+o.label+'" value="'+val+'"'+bind+aria(k)+'>';}
   function wrap(label,body,after){return '<div class="f'+(er?' has-err':'')+(er&&S.shake?' shake':'')+(o.valid&&!er&&isValid(k)?' is-valid':'')+'"'+(k?' data-f="'+k+'"':'')+'>'+lab(label,req)+body+errHTML(k)+(after||'')+ccPop(k)+'</div>';}
   if(o.kind==='account'){
-    var mob=S.accMode==='mobile';
-    ph=mob?'_ _ _ _ _ _ _ _ _':(CFG.labelOutside?'Enter your username':'Please Enter Username *');
-    o.label=mob?'Mobile No':'Username';
-    return wrap(o.label,'<div class="'+bc+'">'+ico(mob?'mobile':'user',star)+(mob?codeBtn(k,'f-code',dial()):'')+
-      '<button type="button" class="icon-btn" data-act="accSwitch" aria-label="'+(mob?'Switch to username':'Switch to mobile')+'" title="'+(mob?'Switch to username':'Switch to mobile')+'">'+SWAP+'</button><span class="f-div"></span>'+
-      input(mob?'tel':'text',mob?' is-digits':'',mob?'numeric':'')+'</div>');
+    var lst=o.list||ACC, sk=o.skey||'accMode', md=S[sk]; if(lst.indexOf(md)<0) md=S[sk]=lst[0];
+    var mob=md==='mobile', em=md==='email', nx=lst[(lst.indexOf(md)+1)%lst.length];
+    ph=mob?'_ _ _ _ _ _ _ _ _':em?(CFG.labelOutside?'Enter your email':'Email *'):(CFG.labelOutside?'Enter your username':'Please Enter Username *');
+    o.label=mob?'Mobile No':em?'Email':'Username';
+    var sw=lst.length>1?'<button type="button" class="icon-btn" data-act="accSwitch" data-s="'+sk+'" aria-label="Switch to '+nx+'" title="Switch to '+nx+'">'+SWAP+'</button><span class="f-div"></span>':'';
+    return wrap(o.label,'<div class="'+bc+'">'+ico(mob?'mobile':em?'email':'user',star)+(mob?codeBtn(k,'f-code',dial()):'')+sw+
+      input(mob?'tel':em?'email':'text',mob?' is-digits':'',mob?'numeric':'')+'</div>');
   }
   if(o.kind==='phone'&&CFG.phoneLayout==='split'){
     return wrap(o.label,'<div class="f-split">'+codeBtn(k,'f-codebox',ico('mobile',star)+'<span>'+dial()+'</span>')+'<div class="f-box no-icon">'+input('tel','','numeric')+'</div></div>');
   }
   var inner;
   if(o.kind==='phone') inner=ico('mobile',star)+codeBtn(k,'f-code',dial())+input('tel','','numeric');
-  else if(o.kind==='code') inner=ico(o.icon||'shield',star)+input('text','','numeric')+'<button type="button" class="f-btn" id="getcode" data-act="getCode"'+(S.timer?' disabled':'')+'>'+(S.timer?'Resend ('+S.timer+'s)':'Get code')+'</button>';
+  else if(o.kind==='code') inner=ico(o.icon||'shield',star)+input('text','','numeric')+'<button type="button" class="f-btn" id="getcode" data-act="getCode" data-v="'+k+'"'+(S.timer?' disabled':'')+'>'+(S.timer?'Resend ('+S.timer+'s)':'Get code')+'</button>';
   else if(o.kind==='select') inner=ico(o.icon,star)+'<span class="f-value">'+o.value+'</span>'+TRI;
   else if(o.kind==='bank'){
     var bk=bankBy(S[k]), open=S.ccOpen===k;
@@ -631,28 +642,27 @@ function tabs2(){
     '<button type="button" role="tab" class="seg-btn'+(S.tab==='login'?' on':'')+'" aria-selected="'+(S.tab==='login')+'" data-act="goLogin">Login</button>'+
     '<button type="button" role="tab" class="seg-btn'+(S.tab==='signup'?' on':'')+'" aria-selected="'+(S.tab==='signup')+'" data-act="goSignup">Sign Up<span class="badge">New User</span></button></div>';
 }
-function methodsPill(){
-  var m=[['username','Username','user14'],['mobile','Mobile','mobile14'],['email','Email','email14']].filter(function(x){return ACC.indexOf(x[0])>=0;});
-  if(m.length<2) return '';
-  return '<div class="seg seg-3" role="tablist" aria-label="Login method">'+m.map(function(x){
-    return '<button type="button" role="tab" class="seg-btn'+(S.method===x[0]?' on':'')+'" aria-selected="'+(S.method===x[0])+'" data-act="method" data-v="'+x[0]+'">'+IC[x[2]]+'<span>'+x[1]+'</span></button>';
+var MLAB={username:['Username','user14'],mobile:['Mobile','mobile14'],email:['Email','email14']};
+function methodsPill(lst,sk){
+  lst=lst||ACC; sk=sk||'method'; if(lst.length<2) return '';
+  return '<div class="seg seg-3'+(lst.length===2?' seg-n2':'')+'" style="grid-template-columns:repeat('+lst.length+',minmax(0,1fr))" role="tablist" aria-label="'+(sk==='suMethod'?'Sign up method':'Login method')+'">'+lst.map(function(x){
+    return '<button type="button" role="tab" class="seg-btn'+(S[sk]===x?' on':'')+'" aria-selected="'+(S[sk]===x)+'" data-act="method" data-s="'+sk+'" data-v="'+x+'">'+IC[MLAB[x][1]]+'<span>'+MLAB[x][0]+'</span></button>';
   }).join('')+'</div>';
 }
-function methodsUnderline(){
-  var m=[['username','Username'],['mobile','Mobile'],['email','Email']].filter(function(x){return ACC.indexOf(x[0])>=0;});
-  if(m.length<2) return '';
-  return '<div class="ul-tabs" role="tablist" aria-label="Login method">'+m.map(function(x){return '<button type="button" role="tab" class="ul-tab'+(S.method===x[0]?' on':'')+'" aria-selected="'+(S.method===x[0])+'" data-act="method" data-v="'+x[0]+'">'+x[1]+'</button>';}).join('')+'</div>';
+function methodsUnderline(lst,sk){
+  lst=lst||ACC; sk=sk||'method'; if(lst.length<2) return '';
+  return '<div class="ul-tabs" role="tablist" aria-label="'+(sk==='suMethod'?'Sign up method':'Login method')+'">'+lst.map(function(x){return '<button type="button" role="tab" class="ul-tab'+(S[sk]===x?' on':'')+'" aria-selected="'+(S[sk]===x)+'" data-act="method" data-s="'+sk+'" data-v="'+x+'">'+MLAB[x][0]+'</button>';}).join('')+'</div>';
 }
-function methodsAny(){ if(CFG.accountSwitch==='pill') return methodsPill(); if(CFG.accountSwitch==='link') return switchLink(); if(CFG.accountSwitch==='underline') return methodsUnderline(); return ''; }
-function nextMethod(){ var i=ACC.indexOf(S.method); return ACC[(i+1)%ACC.length]; }
-function switchLink(){
-  if(ACC.length<2) return '';
-  var nx=nextMethod();
-  return '<button type="button" class="switch-link" data-act="cycle">'+IC[nx==='username'?'user14':nx==='mobile'?'mobile14':'email14']+'<span>Log in with '+nx+'</span>'+CHEV+'</button>';
+function methodsAny(lst,sk){ if(CFG.accountSwitch==='pill') return methodsPill(lst,sk); if(CFG.accountSwitch==='link') return switchLink(lst,sk); if(CFG.accountSwitch==='underline') return methodsUnderline(lst,sk); return ''; }
+function nextMethod(lst,sk){ lst=lst||ACC; sk=sk||'method'; var i=lst.indexOf(S[sk]); return lst[(i+1)%lst.length]; }
+function switchLink(lst,sk){
+  lst=lst||ACC; sk=sk||'method'; if(lst.length<2) return '';
+  var nx=nextMethod(lst,sk);
+  return '<button type="button" class="switch-link" data-act="cycle" data-s="'+sk+'">'+IC[MLAB[nx][1]]+'<span>'+(sk==='suMethod'?'Sign up with ':'Log in with ')+nx+'</span>'+CHEV+'</button>';
 }
 function accountField(bind){
   bind=bind||'id';
-  if(CFG.accountSwitch==='inline'&&ACC.indexOf('username')>=0&&ACC.indexOf('mobile')>=0) return field({kind:'account',bind:bind});
+  if(CFG.accountSwitch==='inline'&&ACC.length>1) return field({kind:'account',bind:bind,list:ACC,skey:'accMode'});
   if(S.method==='mobile') return field({kind:'phone',label:'Mobile No',ph:'Mobile No *',phOut:'Enter your mobile number',bind:bind});
   if(S.method==='email') return field({kind:'email',icon:'email',label:'Email',ph:'Email *',phOut:'Enter your email',bind:bind});
   return field({kind:'text',icon:'user',label:'Username',ph:'Please Enter Username *',phOut:'Enter your username',bind:bind});
@@ -695,7 +705,7 @@ function loginHTML(){
   h+='<div class="row">'+(GJ?'':checkBtn('remember',S.remember,'Remember Me'))+'<button type="button" class="plain-btn" data-act="goForgot">Forgot Password?</button></div>';
   h+=cta('Login','Logging in…','login');
   h+=langHTML();
-  if(!CFG.topTabs) h+=GJ?'<div class="foot"><span>No account yet?</span><button type="button" class="link" data-act="goSignup">Sign Up</button></div>':'<div class="foot"><span>Don’t have an account?</span><button type="button" class="link" data-act="goSignup">Create an account</button></div>';
+  if(!TT) h+=GJ?'<div class="foot"><span>No account yet?</span><button type="button" class="link" data-act="goSignup">Sign Up</button></div>':'<div class="foot"><span>Don’t have an account?</span><button type="button" class="link" data-act="goSignup">Create an account</button></div>';
   h+=socialHTML('bottom');
   return h;
 }
@@ -706,9 +716,18 @@ function signupHTML(){
   if(st===4) return GJ?bankHTML(true)+doneModal():doneHTML();
   var h=head(GJ?'Register':'Sign Up');
   h+=socialHTML('top');
-  h+='<div class="mt12">'+field({kind:'text',icon:'user',label:'Username',ph:'Please Enter Username *',phOut:'Enter your username',bind:'su_user'})+'</div>';
-  h+='<div class="mt16">'+field({kind:'phone',label:'Mobile No',ph:'Mobile No *',phOut:'Enter your mobile number',bind:'su_phone'})+'</div>';
-  if(CFG.smsCode) h+='<div class="mt16">'+field({kind:'code',icon:'email',label:'SMS code',ph:'SMS *',phOut:'Enter the 6-digit SMS code',bind:'su_sms'})+'</div>';
+  var F={su_user:function(){return field({kind:'text',icon:'user',label:'Username',ph:'Please Enter Username *',phOut:'Enter your username',bind:'su_user'});},
+    su_phone:function(){return field({kind:'phone',label:'Mobile No',ph:'Mobile No *',phOut:'Enter your mobile number',bind:'su_phone'});},
+    su_sms:function(){return field({kind:'code',icon:'email',label:'SMS code',ph:'SMS *',phOut:'Enter the 6-digit SMS code',bind:'su_sms'});},
+    su_email:function(){return field({kind:'email',icon:'email',label:'Email',ph:'Email *',phOut:'Enter your email',bind:'su_email'});},
+    su_ecode:function(){return field({kind:'code',icon:'shield',label:'Email code',ph:'Email code *',phOut:'Enter the 6-digit email code',bind:'su_ecode'});}};
+  var need=suNeed(), first=true;
+  if(SU_TABS&&CFG.accountSwitch==='inline'){
+    var idb=S.suMethod==='mobile'?'su_phone':S.suMethod==='email'?'su_email':'su_user';
+    h+='<div class="mt12">'+field({kind:'account',bind:idb,list:SUF,skey:'suMethod'})+'</div>'; first=false;
+    need=need.filter(function(b){return b!==idb;});
+  } else if(SU_TABS) h+=methodsAny(SUF,'suMethod');
+  need.forEach(function(b){ h+='<div class="'+(first?'mt12':'mt16')+'">'+F[b]()+'</div>'; first=false; });
   h+=authToggle();
   if(S.auth==='password'){
     h+='<div class="mt16">'+field({kind:'password',label:'Password',ph:'Password *',phOut:'Enter your password',bind:'su_pwd'})+'</div>';
@@ -720,7 +739,7 @@ function signupHTML(){
   h+='<div class="terms-wrap'+(S.err.agree?' has-err':'')+'" data-f="agree">'+checkBtn('agree',S.agree,'I am over 18 years old and agree to the <u>Terms &amp; Conditions</u>',' terms')+errHTML('agree')+'</div>';
   h+=cta('Next','Checking…');
   h+=langHTML();
-  if(!(CFG.topTabs)) h+='<div class="foot"><span>Already have an account?</span><button type="button" class="link" data-act="goLogin">'+(GJ?'Login Now':'Login')+'</button></div>';
+  if(!TT) h+='<div class="foot"><span>Already have an account?</span><button type="button" class="link" data-act="goLogin">'+(GJ?'Login Now':'Login')+'</button></div>';
   h+=socialHTML('bottom');
   return h;
 }
@@ -733,7 +752,7 @@ function bankHTML(behind){
   return h;
 }
 function confirmModal(){
-  var rows=[['Phone Number',dial()+' '+S.su_phone],['Account Number',S.su_acc],['Bank Name',maskName()],['Account Name',S.su_name]];
+  var rows=suRows(false).concat([['Account Number',S.su_acc],['Bank Name',maskName()],['Account Name',S.su_name]]);
   return '<div class="modal-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle"><h2 id="mtitle" class="modal-title">Confirm Membership</h2>'+
     '<dl class="modal-rows">'+rows.map(function(r){return '<div><dt>'+r[0]+':</dt><dd>'+esc(r[1]||'—')+'</dd></div>';}).join('')+'</dl>'+
     '<div class="btn-row"><button type="button" class="btn-grey" data-act="suBack"'+(S.loading?' disabled':'')+'>'+bi('cancel')+'<span>Cancel</span></button>'+
@@ -742,15 +761,15 @@ function confirmModal(){
 function doneModal(){
   var secret=S.auth==='pin'?S.su_pin:S.su_pwd, secretLabel=S.auth==='pin'?'PIN':'Password';
   return '<div class="modal-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="dtitle"><h2 id="dtitle" class="modal-title">Successfully Signed Up!</h2>'+
-    '<ol class="notes">'+'<li>Please keep your username and '+secretLabel.toLowerCase()+' safe. We recommend taking a screenshot for your records.</li><li>You can log in to your account with your username and '+secretLabel.toLowerCase()+'.</li></ol>'+
-    '<div class="creds">'+[['Username',S.su_user],[secretLabel,secret]].map(function(r){
+    '<ol class="notes">'+'<li>Please keep your '+suId()[0].toLowerCase()+' and '+secretLabel.toLowerCase()+' safe. We recommend taking a screenshot for your records.</li><li>You can log in to your account with your '+suId()[0].toLowerCase()+' and '+secretLabel.toLowerCase()+'.</li></ol>'+
+    '<div class="creds">'+[[suId()[0],suId()[1]],[secretLabel,secret]].map(function(r){
       return '<div class="cred"><span class="cred-k">'+r[0]+':</span><span class="cred-v">'+esc(r[1]||'—')+'</span><button type="button" class="icon-btn" data-act="copy" data-v="'+esc(r[1]||'')+'" aria-label="Copy '+r[0]+'">'+COPY+'</button></div>';
     }).join('')+'</div>'+
     '<div class="modal-one"><button type="button" class="btn-primary ready" data-act="suDone">'+bi('check')+'<span>Confirm</span></button></div></div></div>';
 }
 function maskName(){var b=bankBy(S.su_bank);return b?b[1]:'—';}
 function confirmHTML(){
-  var rows=[['Username',S.su_user],['Phone Number',dial()+' '+S.su_phone],['Account Number',S.su_acc],['Bank Name',maskName()],['Account Name',S.su_name]];
+  var rows=suRows(true).concat([['Account Number',S.su_acc],['Bank Name',maskName()],['Account Name',S.su_name]]);
   var h=head('Confirm Membership')+'<p class="sub">Please check your details before confirming.</p>';
   h+='<dl class="summary">'+rows.map(function(r){return '<div><dt>'+r[0]+':</dt><dd>'+esc(r[1]||'—')+'</dd></div>';}).join('')+'</dl>';
   h+='<div class="btn-row"><button type="button" class="btn-grey" data-act="suBack"'+(S.loading?' disabled':'')+'>'+bi('cancel')+'<span>Cancel</span></button>'+
@@ -760,8 +779,8 @@ function confirmHTML(){
 function doneHTML(){
   var secret=S.auth==='pin'?S.su_pin:S.su_pwd, secretLabel=S.auth==='pin'?'PIN':'Password';
   var h='<div class="done-title">Successfully signed up!</div>';
-  h+='<ol class="notes"><li>Please keep your username and '+secretLabel.toLowerCase()+' safe. We recommend taking a screenshot for your records.</li><li>You can log in to your account with your username and '+secretLabel.toLowerCase()+'.</li></ol>';
-  h+='<div class="creds">'+[['Username',S.su_user],[secretLabel,secret]].map(function(r){
+  h+='<ol class="notes"><li>Please keep your '+suId()[0].toLowerCase()+' and '+secretLabel.toLowerCase()+' safe. We recommend taking a screenshot for your records.</li><li>You can log in to your account with your '+suId()[0].toLowerCase()+' and '+secretLabel.toLowerCase()+'.</li></ol>';
+  h+='<div class="creds">'+[[suId()[0],suId()[1]],[secretLabel,secret]].map(function(r){
     return '<div class="cred"><span class="cred-k">'+r[0]+':</span><span class="cred-v">'+esc(r[1]||'—')+'</span><button type="button" class="icon-btn" data-act="copy" data-v="'+esc(r[1]||'')+'" aria-label="Copy '+r[0]+'">'+COPY+'</button></div>';
   }).join('')+'</div>';
   h+='<button type="button" class="btn-primary ready btn-narrow" data-act="suDone">'+bi('check')+'<span>Confirm</span></button>';
@@ -791,6 +810,13 @@ function forgotHTML(){
   }
   return h;
 }
+function suNeed(){
+  var sms=CFG.smsCode?['su_sms']:[];
+  if(SU_TABS){ var m=S.suMethod; return m==='email'?['su_email','su_ecode']:m==='mobile'?['su_phone'].concat(sms):['su_user','su_phone'].concat(sms); }
+  var out=[]; SUF.forEach(function(x){ if(x==='username') out.push('su_user'); if(x==='mobile') out=out.concat(['su_phone'],sms); if(x==='email') out.push('su_email'); }); return out;
+}
+function suId(){ var n=suNeed(); return n.indexOf('su_user')>=0?['Username',S.su_user,'username']:n.indexOf('su_phone')>=0?['Mobile',dial()+' '+S.su_phone,'mobile']:['Email',S.su_email,'email']; }
+function suRows(withUser){ var n=suNeed(), r=[]; if(withUser&&n.indexOf('su_user')>=0) r.push(['Username',S.su_user]); if(n.indexOf('su_phone')>=0) r.push(['Phone Number',dial()+' '+S.su_phone]); if(n.indexOf('su_email')>=0) r.push(['Email',S.su_email]); return r; }
 function via(){var m=CFG.accountSwitch==='inline'?S.accMode:S.method;return m==='email'?'email':'mobile number';}
 
 /* ---------- validation ---------- */
@@ -814,8 +840,7 @@ function validate(){
     put('su_acc',vAcc(S.su_acc)); put('su_name',vName(S.su_name));
   } else if(S.tab==='signup'&&S.suStep>2){
   } else if(S.tab==='signup'){
-    put('su_user',vUser(S.su_user)); put('su_phone',vPhone(S.su_phone));
-    if(CFG.smsCode) put('su_sms',/^\d{6}$/.test(S.su_sms)?null:'Enter the 6-digit SMS code');
+    suNeed().forEach(function(b){ var v=S[b]; put(b, b==='su_user'?vUser(v):b==='su_phone'?vPhone(v):b==='su_email'?vEmail(v):b==='su_sms'?(/^\d{6}$/.test(v)?null:'Enter the 6-digit SMS code'):(/^\d{6}$/.test(v)?null:'Enter the 6-digit email code')); });
     if(S.auth==='password'){ put('su_pwd',vNewPwd(S.su_pwd)); put('su_pwd2',vMatch(S.su_pwd,S.su_pwd2,'password')); }
     else { put('su_pin',vPin(S.su_pin)); put('su_pin2',vMatch(S.su_pin,S.su_pin2,'PIN')); }
     if(!S.agree) e.agree='Please accept the Terms & Conditions to continue';
@@ -872,7 +897,7 @@ function render(){
   var body=S.tab==='login'?loginHTML():S.tab==='forgot'?forgotHTML():signupHTML();
   app.innerHTML=GJ?bannerHTML()+'<div class="gj-card">'+body+'</div>':body;
   paintPin(); app.querySelectorAll('[data-rules]').forEach(function(r){ paintRules(r.dataset.rules); });
-  try{ parent.postMessage({__pv:1,tab:S.tab,suStep:S.suStep,fpStep:S.fpStep,auth:S.auth,method:S.method,accMode:S.accMode},'*'); }catch(e){}
+  try{ parent.postMessage({__pv:1,tab:S.tab,suStep:S.suStep,fpStep:S.fpStep,auth:S.auth,method:S.method,accMode:S.accMode,suMethod:S.suMethod},'*'); }catch(e){}
 }
 function startTimer(){
   S.timer=60;
@@ -908,9 +933,9 @@ app.addEventListener('click',function(e){
   var b=e.target.closest('[data-act]'); if(!b) return;
   var a=b.dataset.act, v=b.dataset.v, focusSel=null;
   if(a==='eye') S.show=!S.show;
-  else if(a==='method'){S.method=v;S.id='';S.fp_id='';S.err={};}
-  else if(a==='cycle'){S.method=nextMethod();S.id='';S.fp_id='';S.err={};}
-  else if(a==='accSwitch'){S.accMode=S.accMode==='mobile'?'username':'mobile';S.id='';S.fp_id='';S.err={};}
+  else if(a==='method'){var sk=b.dataset.s||'method'; S[sk]=v; if(sk==='method'){S.id='';S.fp_id='';} S.err={};}
+  else if(a==='cycle'){var sk2=b.dataset.s||'method'; S[sk2]=nextMethod(listOf(sk2),sk2); if(sk2==='method'){S.id='';S.fp_id='';} S.err={};}
+  else if(a==='accSwitch'){var sk3=b.dataset.s||'accMode', l3=listOf(sk3); S[sk3]=l3[(l3.indexOf(S[sk3])+1)%l3.length]; if(sk3==='accMode'){S.id='';S.fp_id='';} S.err={};}
   else if(a==='auth'){S.auth=v;S.err={};}
   else if(a==='goSignup'){S.tab='signup';S.suStep=1;S.err={};}
   else if(a==='goLogin'){S.tab='login';S.fpStep=1;S.err={};}
@@ -921,11 +946,11 @@ app.addEventListener('click',function(e){
   else if(a==='cc'){S.ccOpen=S.ccOpen===v?null:v; S.tipOpen=null; focusSel='.cc-search';}
   else if(a==='bankPick'){S.su_bank=v; S.ccOpen=null; delete S.err.su_bank; focusSel='[data-bind="su_acc"]';}
   else if(a==='suBack'){S.suStep=Math.max(1,S.suStep-1);S.err={};}
-  else if(a==='suDone'){S.tab='login';S.suStep=1;S.method='username';S.id=S.su_user;S.err={};toast('success','Welcome! You can now log in.');}
+  else if(a==='suDone'){var sid=suId();S.tab='login';S.suStep=1;S.method=ACC.indexOf(sid[2])>=0?sid[2]:ACC[0];S.accMode=S.method;S.id=sid[2]==='username'?S.su_user:sid[2]==='mobile'?S.su_phone:S.su_email;S.err={};toast('success','Welcome! You can now log in.');}
   else if(a==='copy'){ try{navigator.clipboard.writeText(v);}catch(x){} toast('success','Copied to clipboard'); return; }
   else if(a==='ccPick'){S.country=v; S.ccOpen=null; focusSel='[data-f] input[type="tel"]';}
   else if(a==='tip'){S.tipOpen=S.tipOpen===v?null:v; S.ccOpen=null;}
-  else if(a==='getCode'){ if(S.timer) return; startTimer(); toast('success','Verification code sent to your '+(S.tab==='signup'?'mobile number':via())+'.'); focusSel='[data-bind="'+(S.tab==='signup'?'su_sms':'fp_code')+'"]'; }
+  else if(a==='getCode'){ if(S.timer) return; startTimer(); toast('success','Verification code sent to your '+(v==='su_ecode'?'email':v==='su_sms'?'mobile number':via())+'.'); focusSel='[data-bind="'+(v||'fp_code')+'"]'; }
   else if(a==='social'){ toast('success','Connecting with '+v+'… (demo)'); return; }
   else if(a==='socMore') S.socOpen=!S.socOpen;
   else if(a==='lang'){ S.langOpen=!S.langOpen; S.ccOpen=S.tipOpen=null; }
@@ -976,11 +1001,11 @@ app.addEventListener('submit',function(e){e.preventDefault();submit();});
 })();
 if(CFG.walk){
   S.id='player01'; S.pwd='abc123'; S.pin='123456';
-  S.su_user='player01'; S.su_phone='0926888080'; S.su_pwd='abc123'; S.su_pwd2='abc123'; S.su_pin='123456'; S.su_pin2='123456'; S.su_sms='123456';
+  S.su_user='player01'; S.su_phone='0926888080'; S.su_pwd='abc123'; S.su_pwd2='abc123'; S.su_pin='123456'; S.su_pin2='123456'; S.su_sms='123456'; S.su_email='player01@mail.com'; S.su_ecode='123456';
   S.su_bank=banks()[0][0]; S.su_acc='28384858688'; S.su_name='Micheal Eng';
   S.fp_id='player01'; S.fp_code='123456'; S.fp_pwd='newpass1'; S.fp_pwd2='newpass1'; S.fp_pin='654321'; S.fp_pin2='654321';
 }
-if(S.suStep>=2&&!S.su_user){ S.su_sms='123456'; S.su_user='player01'; S.su_phone='0926888080'; S.su_pwd='abc123'; S.su_pwd2='abc123'; S.su_pin='123456'; S.su_pin2='123456'; }
+if(S.suStep>=2&&!S.su_user){ S.su_sms='123456'; S.su_email='player01@mail.com'; S.su_ecode='123456'; S.su_user='player01'; S.su_phone='0926888080'; S.su_pwd='abc123'; S.su_pwd2='abc123'; S.su_pin='123456'; S.su_pin2='123456'; }
 if(S.suStep>=3){ S.su_bank=banks()[0][0]; S.su_acc='28384858688'; S.su_name='Micheal Eng'; }
 if(CFG.showErrors) S.err=validate();
 render();
@@ -989,7 +1014,7 @@ render();
   var PW=['[data-f="pwd"]','[data-f="su_pwd"]','[data-f="fp_pwd"]','[data-pin]'];
   var map={pinStyle:['[data-pin]'],pinEye:['.pin-eye','[data-pin]'],showAuthToggle:['.toggle'].concat(PW),defaultAuth:['.toggle'].concat(PW),
     phoneLayout:['.f-split','.f-code'],phoneIcon:['.is-flag','.f-codebox','.f-code'],codeDropdown:['[data-act="cc"]','.f-codebox','.f-code'],country:['.f-codebox','.f-code'],
-    showIcon:['.f'],labelOutside:['.f'],showTip:['.tip-btn'].concat(PW),topTabs:['.seg-2','.ul-tabs','.title'],accountSwitch:['.seg-3','.ul-tabs','.switch-link','[data-act="accSwitch"]'],accTypes:['.seg-3','.ul-tabs','.switch-link','[data-f="id"]','[data-f="fp_id"]'],
+    showIcon:['.f'],labelOutside:['.f'],showTip:['.tip-btn'].concat(PW),topTabs:['.seg-2','.ul-tabs','.title'],accountSwitch:['.seg-3','.ul-tabs','.switch-link','[data-act="accSwitch"]'],accTypes:['.seg-3','.ul-tabs','.switch-link','[data-f="id"]','[data-f="fp_id"]'],suFields:['.seg-3','.ul-tabs','.switch-link','[data-f="su_user"]','[data-f="su_phone"]','[data-f="su_email"]'],suMethod:['.seg-3','.ul-tabs','.switch-link','[data-act="accSwitch"]','[data-f="su_user"]'],
     btnIcon:['#cta','.btn-primary'],btnCase:['#cta','.btn-primary'],
     banner:['.gj-banner','.title'],social:['.soc'],socialPos:['.soc'],socialCount:['.soc'],lang:['.lang'],smsCode:['[data-f="su_sms"]','[data-f="su_phone"]']};
   var list=map[FOCUS]; if(!list) return;
@@ -1018,9 +1043,12 @@ render();
       ['demoResult','Login result','Which message appears',[['error','Error'],['success','Success']],'error','login']]],
     ['Header',[
       ['banner','Banner','',[['true','On'],['false','Off']],'false'],
-      ['topTabs','Form top','Title only, or Login / Sign Up tabs',[['false','Title'],['true','Pill tabs'],['underline','Underline']],'false','login signup'],
+      ['topTabs','Form top','Title only, or Login / Sign Up tabs',[['none','None'],['false','Title'],['true','Pill tabs'],['underline','Underline']],'false','login signup forgot'],
       ['accTypes','Account types','Pick one or more — tabs only show with 2+',[['u','Username'],['m','Mobile'],['e','Email']],'u,m,e','login forgot'],
-      ['accountSwitch','Account type','How users pick the account type',[['pill','Pill'],['underline','Underline'],['link','Link'],['inline','In field ⇄']],'pill','login forgot']]],
+      ['accountSwitch','Tab style','How users switch account type',[['pill','Pill'],['underline','Underline'],['link','Link'],['inline','In field ⇄']],'pill','login signup forgot']]],
+    ['Sign up',[
+      ['suFields','Fields','',[['u','Username'],['m','Mobile'],['e','Email']],'u,m','signup'],
+      ['suMethod','Method','',[['none','No method'],['tabs','Tabs']],'none','signup']]],
     ['Input field',[
       ['showIcon','Field icon','Icon at the left of each field',[['true','Show'],['false','Hide']],'true'],
       ['labelOutside','Field label','Placeholder only, or a label above the box',[['false','Inside'],['true','Above']],'false'],
@@ -1052,7 +1080,7 @@ render();
   ];
   var TPL={ibs:{},'gojudi':{accTypes:'u,m',banner:'true',accountSwitch:'underline',topTabs:'false',social:'text',socialPos:'bottom',socialCount:'3',smsCode:'true',phoneLayout:'inline',phoneIcon:'flag',codeDropdown:'true',country:'TH',showAuthToggle:'false',pinEye:'true'}};
   function siteOf(k){var t=TPL[V.template]||TPL.ibs;return (k in t)?t[k]:SITE[k];}
-  var NODESIGN=['template'];
+  var NODESIGN=['template'], MULTI=['accTypes','suFields'], TNAME={u:'Username',m:'Mobile',e:'Email'};
   var PAGES=[['login','Login'],['signup','Sign Up'],['forgot','Forgot Password']];
   var MON='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>';
   var PHN='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18h2"/></svg>';
@@ -1072,7 +1100,8 @@ render();
     walk:{'true':'Now press Next / Confirm to go through the steps','false':'Manual — fill the fields yourself'},
     showErrors:{'true':'Every validation error is shown','false':'Errors hidden'},
     demoResult:{error:'Press Login to see the error message (tip: Fill-in → Auto-fill)',success:'Press Login to see the success message (tip: Fill-in → Auto-fill)'},
-    topTabs:{'true':'Login / Sign Up pill tabs at the top','underline':'Login / Sign Up underline tabs at the top','false':'Title at the top'},
+    suMethod:{none:'No method — every sign-up field shows in one form',tabs:'Tabs — users pick how to sign up, only that field shows'},
+    topTabs:{none:'Nothing above the first field (banner title stays)','true':'Login / Sign Up pill tabs at the top','underline':'Login / Sign Up underline tabs at the top','false':'Title at the top'},
     accountSwitch:{underline:'Username / Mobile underline tabs',pill:'Username / Mobile / Email pill',link:'“Log in with …” link under the title',inline:'Tap ⇄ inside the field to switch'},
     showIcon:{'true':'Icons shown in the fields','false':'Icons removed from the fields'},
     labelOutside:{'true':'Labels now sit above each field','false':'Labels inside the field (placeholder)'},
@@ -1096,13 +1125,13 @@ render();
   if(V.template==='gojudi') Object.keys(TPL.gojudi).forEach(function(k){ if(!q.get(k)) V[k]=TPL.gojudi[k]; });
   var $=function(id){return document.getElementById(id);};
   var pv=$('pv'), sc=$('scaler'), stage=$('stage'), panel=$('panel'), varBtn=$('varBtn');
-  var openGroups={'Template':true,'Social & language':true,'Theme':true,'Try it':true,'Header':true,'Input field':true,'Password / PIN':true,'Button':false};
+  var openGroups={'Sign up':true,'Template':true,'Social & language':true,'Theme':true,'Try it':true,'Header':true,'Input field':true,'Password / PIN':true,'Button':false};
 
-  function applies(o){ if(o[0]==='accountSwitch'&&V.accTypes&&V.accTypes.split(',').length<2) return false; if(o[0]==='banner'&&V.template!=='gojudi') return false; if((o[0]==='socialPos'||o[0]==='socialCount')&&V.social==='off') return false; if(o[0]==='pinEye'&&V.pinStyle!=='boxes') return false; if(o[0]==='phoneIcon'&&V.showIcon!=='true') return false; return !o[5]||o[5].split(' ').indexOf(V.page)>=0;}
+  function applies(o){ if(o[0]==='accountSwitch'){ if(V.page==='signup') return V.suMethod==='tabs'&&V.suFields.split(',').length>1; if(V.accTypes.split(',').length<2) return false; } if(o[0]==='suMethod'&&V.suFields.split(',').length<2) return false; if(o[0]==='banner'&&V.template!=='gojudi') return false; if((o[0]==='socialPos'||o[0]==='socialCount')&&V.social==='off') return false; if(o[0]==='pinEye'&&V.pinStyle!=='boxes') return false; if(o[0]==='phoneIcon'&&V.showIcon!=='true') return false; return !o[5]||o[5].split(' ').indexOf(V.page)>=0;}
   function seg(key,choices,site){
-    if(key==='accTypes'){ var cur=V[key].split(','), st=(site||'').split(',');
+    if(MULTI.indexOf(key)>=0){ var cur=V[key].split(','), st=(site||'').split(',');
       return '<div class="seg multi" role="group">'+choices.map(function(c){ var on=cur.indexOf(c[0])>=0, sd=st.indexOf(c[0])>=0;
-        return '<button type="button" data-k="accTypes" data-t="'+c[0]+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'">'+(on?'✓ ':'')+c[1]+(sd?' <span class="site-dot" aria-hidden="true"></span>':'')+'</button>'; }).join('')+'</div>'; }
+        return '<button type="button" data-k="'+key+'" data-t="'+c[0]+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'">'+(on?'✓ ':'')+c[1]+(sd?' <span class="site-dot" aria-hidden="true"></span>':'')+'</button>'; }).join('')+'</div>'; }
     return '<div class="seg" role="group">'+choices.map(function(c){
       var on=V[key]===c[0];
       return '<button type="button" data-k="'+key+'" data-v="'+c[0]+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'"'+(site===c[0]?' title="Live site"':'')+'>'+c[1]+(site===c[0]?' <span class="site-dot" aria-hidden="true"></span>':'')+'</button>';
@@ -1111,6 +1140,7 @@ render();
   function isDesign(k){return DEMO.indexOf(k)<0&&NODESIGN.indexOf(k)<0;}
   function changes(){return ALL.filter(function(o){return isDesign(o[0])&&applies(o)&&V[o[0]]!==siteOf(o[0]);}).length;}
   function presetOn(p){return ALL.filter(function(o){return isDesign(o[0]);}).every(function(o){return V[o[0]]===(p[3][o[0]]||siteOf(o[0]));});}
+  function suWarn(){ var miss=V.suFields.split(',').filter(function(x){return V.accTypes.split(',').indexOf(x)<0;}); return miss.length?'<div class="opt-warn">⚠ Login can’t use '+miss.map(function(x){return TNAME[x];}).join(' / ')+' — add it in Header → Account types</div>':''; }
   function refName(){return V.template==='gojudi'?'GOJUDI design':'live site';}
   function draw(){
     $('pageSeg').innerHTML=PAGES.map(function(p){var on=V.page===p[0];return '<button type="button" data-k="page" data-v="'+p[0]+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'">'+p[1]+'</button>';}).join('');
@@ -1129,9 +1159,9 @@ render();
       var gc=rows.filter(function(o){return isDesign(o[0])&&V[o[0]]!==siteOf(o[0]);}).length;
       h+='<details data-g="'+g[0]+'"'+(openGroups[g[0]]?' open':'')+'><summary>'+g[0]+(gc?'<span class="badge">'+gc+'</span>':'')+'</summary><div class="opts">'+
         rows.map(function(o){var ch=isDesign(o[0])&&V[o[0]]!==siteOf(o[0]);
-          var wide=o[0]==='accTypes'||o[3].length>3||o[3].some(function(c){return c[1].length>10;});
+          var wide=MULTI.indexOf(o[0])>=0||o[3].length>3||o[3].some(function(c){return c[1].length>10;});
           return '<div class="opt'+(ch?' changed':'')+(wide?' wide':'')+'"><div class="opt-top"><span class="opt-name">'+o[1]+'</span>'+(ch?'<button type="button" class="undo" data-k="'+o[0]+'" data-v="'+siteOf(o[0])+'" title="Back to '+refName()+'" aria-label="Back to '+refName()+'">↺</button>':'')+'</div>'+seg(o[0],o[3],isDesign(o[0])?siteOf(o[0]):null)+'</div>';
-        }).join('')+'</div></details>';
+        }).join('')+(g[0]==='Sign up'?suWarn():'')+'</div></details>';
     });
     var sb=panel.querySelector('.side-body'), top=sb?sb.scrollTop:0;
     panel.innerHTML=h+'</div><div class="hint-bar" id="hint"'+(HINT?'':' hidden')+' role="status">'+HINT+'</div>';
@@ -1140,11 +1170,11 @@ render();
   }
   var RT={};
   window.addEventListener('message',function(e){ var d=e.data; if(!d||!d.__pv||e.source!==pv.contentWindow) return;
-    RT={auth:d.auth,method:d.method,accMode:d.accMode};
+    RT={auth:d.auth,method:d.method,accMode:d.accMode,suMethod:d.suMethod};
     var np=d.tab, ns=String(d.suStep||1), nf=String(d.fpStep||1);
     if(np!==V.page||ns!==V.suStep||nf!==V.fpStep){ V.page=np; V.suStep=ns; V.fpStep=nf; sync(); draw(); }
   });
-  function cfg(){var o={};Object.keys(V).forEach(function(k){if(k==='w')return;var v=V[k];o[k]=v==='true'?true:v==='false'?false:v;});o.focus=FOCUS;if(RT.auth)o.curAuth=RT.auth;if(RT.method)o.curMethod=RT.method;if(RT.accMode)o.curAccMode=RT.accMode;return o;}
+  function cfg(){var o={};Object.keys(V).forEach(function(k){if(k==='w')return;var v=V[k];o[k]=v==='true'?true:v==='false'?false:v;});o.focus=FOCUS;if(RT.suMethod)o.curSuMethod=RT.suMethod;if(RT.auth)o.curAuth=RT.auth;if(RT.method)o.curMethod=RT.method;if(RT.accMode)o.curAccMode=RT.accMode;return o;}
   function doc(){return SRC.replace('/*CFG*/{}',JSON.stringify(cfg()));}
   function sync(){
     var p=new URLSearchParams();
@@ -1172,14 +1202,15 @@ render();
     if(p){ var pr=PRESETS.filter(function(x){return x[0]===p.dataset.preset;})[0]; ALL.forEach(function(o){ if(isDesign(o[0])) V[o[0]]=pr[3][o[0]]||siteOf(o[0]); }); HINT={site:'Back to the live site look',new:'New design applied — try Mobile and PIN',gsite:'GOJUDI design (22FUN green)',gplus:'GOJUDI with language, icon social on top and PIN'}[pr[0]]; load(); return; }
     var b=e.target.closest('button[data-k]'); if(!b) return;
     var k=b.dataset.k;
-    if(k==='accTypes'&&b.dataset.t){ var cur=V.accTypes.split(','), t=b.dataset.t, i=cur.indexOf(t); if(i>=0){ if(cur.length===1){ HINT='Keep at least one account type'; draw(); return; } cur.splice(i,1); } else cur.push(t); V.accTypes=['u','m','e'].filter(function(x){return cur.indexOf(x)>=0;}).join(','); }
+    if(MULTI.indexOf(k)>=0&&b.dataset.t){ var cur=V[k].split(','), t=b.dataset.t, i=cur.indexOf(t); if(i>=0){ if(cur.length===1){ HINT='Keep at least one'; draw(); return; } cur.splice(i,1); } else cur.push(t); V[k]=['u','m','e'].filter(function(x){return cur.indexOf(x)>=0;}).join(','); }
     else V[k]=b.dataset.v;
     if(k==='template'){ ALL.forEach(function(o){ if(isDesign(o[0])) V[o[0]]=siteOf(o[0]); }); }
     if(k==='page'){ V.suStep='1'; V.fpStep='1'; }
     if(k==='template'||k==='accountSwitch'||k==='accTypes'){ delete RT.method; delete RT.accMode; }
+    if(k==='template'||k==='suFields'||k==='suMethod') delete RT.suMethod;
     if(k==='showAuthToggle'||k==='defaultAuth') delete RT.auth;
     FOCUS=(k==='page'||k==='w'||k==='suStep'||k==='fpStep')?'':k;
-    HINT=k==='accTypes'?(V.accTypes.split(',').length<2?'One account type — no tabs on Login and Forgot Password':'Account types: '+V.accTypes.split(',').map(function(x){return {u:'Username',m:'Mobile',e:'Email'}[x];}).join(' / ')):((HINTS[k]&&HINTS[k][V[k]])||'');
+    HINT=k==='accTypes'?(V.accTypes.split(',').length<2?'One account type — no tabs on Login and Forgot Password':'Login with: '+V.accTypes.split(',').map(function(x){return TNAME[x];}).join(' / ')):k==='suFields'?('Sign up with: '+V.suFields.split(',').map(function(x){return TNAME[x];}).join(' + ')+(V.suFields.split(',').length<2?' — no tabs':'')):((HINTS[k]&&HINTS[k][V[k]])||'');
     if(k==='w'){ sync(); draw(); size(); } else load();
     FOCUS='';
   });
