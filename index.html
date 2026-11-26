@@ -368,8 +368,7 @@ body.light .flag svg [stroke="#FFFFFF"]{stroke:#FFFFFF}
 body.light .soc-pill.more{color:var(--ink)}
 
 /* ===== GOJUDI template (GOJUDI layout, 22FUN green colours) ===== */
-body.gj{--card:#121212}
-body.gj.light{--bg-desktop:#F3F3F3; --card:#FFFFFF}
+body.gj{--card:var(--bg-desktop)}
 body.gj .page{padding-top:56px}
 body.gj .close{z-index:5}
 body.gj .logo img{display:none}
@@ -387,7 +386,7 @@ body.gj.has-banner .auth{margin-top:0}
 .gj-logo{display:flex;align-items:center;justify-content:center;width:137px;height:43px;border:1.5px dashed rgba(255,255,255,.7);border-radius:8px;color:#FFFFFF;font:700 12px var(--font);letter-spacing:.15em}
 .gj-logo img{width:137px;height:43px;object-fit:contain}
 .gj-title{color:#FFFFFF;font:700 32px/38px var(--font);text-shadow:0 2px 8px rgba(0,0,0,.35)}
-.gj-card{position:relative;margin-top:-20px;padding:30px 22px 32px;background:var(--card);border-radius:20px 20px 0 0}
+.gj-card{position:relative;display:flex;flex-direction:column;margin-top:-20px;padding:30px 22px 32px;background:var(--card);border-radius:20px 20px 0 0}
 body.gj:not(.has-banner) .gj-card{margin-top:0;border-radius:20px}
 body.gj .title{font-size:24px;line-height:32px}
 body.gj .f-box,body.gj .f-codebox{height:48px;border-radius:10px}
@@ -406,6 +405,7 @@ body.gj .link{color:var(--tab-on);font-size:16px;font-weight:500}
 body.gj .seg-btn.on{background:var(--grad)}
 body.gj .check-btn,body.gj .ref-toggle{font-size:14px}
 @media (max-width:767px){
+  body.gj{--card:var(--bg-mobile)}
   .soc-pill{font-size:14px;gap:5px}
   .soc-pill svg{width:17px;height:17px}
   body.gj .page{padding:0}
