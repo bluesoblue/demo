@@ -41,6 +41,10 @@ button:focus-visible{outline:2px solid #84CC16;outline-offset:2px}
 .side[hidden]{display:none}
 .side-head{padding:14px 16px 12px;border-bottom:1px solid #2A2A2E}
 .side-head h2{margin:0 0 4px;font-size:14px;font-weight:600}
+.side-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.reset-all{height:26px;padding:0 10px;border:1px solid #3F3F46;border-radius:6px;background:#27272A;color:#E4E4E7;font:600 12px inherit;font-family:inherit;cursor:pointer}
+.reset-all:hover{background:#3F3F46}
+.reset-all:disabled{opacity:.4;cursor:default}
 .side-head p{margin:0 0 10px;color:#A1A1AA;font-size:12px}
 .presets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .preset{padding:8px 10px;border:1px solid #3F3F46;border-radius:8px;background:#27272A;text-align:left;cursor:pointer}
@@ -462,11 +466,12 @@ FLAGS.GB='<svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><re
 FLAGS.CN='<svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="#DE2910"/><path d="M5 3.2l.9 2.7h2.8L6.4 7.6l.9 2.7L5 8.6 2.7 10.3l.9-2.7L1.3 5.9h2.8z" fill="#FFDE00"/></svg>';
 var LANGS=[['GB','English'],['TH','ภาษาไทย'],['KH','ខ្មែរ'],['VN','Tiếng Việt'],['CN','中文']];
 var GJ=CFG.template==='gojudi';
+if(!CFG.showAuthToggle) CFG.curAuth='';
 var COUNTRIES=[['KH','Cambodia','+855'],['TH','Thailand','+66'],['VN','Vietnam','+84'],['MY','Malaysia','+60'],['ID','Indonesia','+62'],['PH','Philippines','+63']];
 var FOCUS=CFG.focus||'';
 if(CFG.theme==='light') document.body.classList.add('light');
 if(GJ){ document.body.classList.add('gj'); if(CFG.banner) document.body.classList.add('has-banner'); }
-var S = {tab:CFG.page, method:CFG.accountSwitch==='link'?'mobile':'username', accMode:'username', auth:CFG.defaultAuth, show:false, remember:true, agree:true, refOpen:false,
+var S = {tab:CFG.page, method:CFG.curMethod||(CFG.accountSwitch==='link'?'mobile':'username'), accMode:CFG.curAccMode||'username', auth:CFG.curAuth||CFG.defaultAuth, show:false, remember:true, agree:true, refOpen:false,
   id:'', pwd:'', pin:'', su_user:'', su_phone:'', su_pwd:'', su_pwd2:'', su_pin:'', su_pin2:'', su_ref:'',
   fpStep:+(CFG.fpStep||1), fp_id:'', fp_code:'', fp_pwd:'', fp_pwd2:'', fp_pin:'', fp_pin2:'',
   suStep:+(CFG.suStep||1), su_bank:'', su_acc:'', su_name:'',
@@ -860,6 +865,7 @@ function render(){
   var body=S.tab==='login'?loginHTML():S.tab==='forgot'?forgotHTML():signupHTML();
   app.innerHTML=GJ?bannerHTML()+'<div class="gj-card">'+body+'</div>':body;
   paintPin(); app.querySelectorAll('[data-rules]').forEach(function(r){ paintRules(r.dataset.rules); });
+  try{ parent.postMessage({__pv:1,tab:S.tab,suStep:S.suStep,fpStep:S.fpStep,auth:S.auth,method:S.method,accMode:S.accMode},'*'); }catch(e){}
 }
 function startTimer(){
   S.timer=60;
@@ -1103,7 +1109,8 @@ render();
     } else sn.hidden=true;
     var n=changes();
     $('count').innerHTML=n?'<span class="badge">'+n+'</span> vs '+refName():'<span class="site-dot"></span> Same as '+refName();
-    var h='<div class="side-head"><h2>Options</h2><p><span class="site-dot"></span> = '+refName()+'</p><div class="presets">'+
+    var dirty=ALL.some(function(o){return o[0]!=='template'&&V[o[0]]!==(isDesign(o[0])?siteOf(o[0]):DEF[o[0]]);});
+    var h='<div class="side-head"><div class="side-title"><h2>Options</h2><button type="button" class="reset-all" id="resetAll"'+(dirty?'':' disabled')+' title="Put every option back to the '+refName()+' look">↺ Reset all</button></div><p><span class="site-dot"></span> = '+refName()+'</p><div class="presets">'+
       PRESETS.filter(function(p){return p[4]===V.template;}).map(function(p){var on=presetOn(p);return '<button type="button" class="preset'+(on?' on':'')+'" data-preset="'+p[0]+'" aria-pressed="'+on+'"><strong>'+p[1]+'</strong><span>'+p[2]+'</span></button>';}).join('')+'</div></div><div class="side-body">';
     GROUPS.forEach(function(g){
       var rows=g[1].filter(applies); if(!rows.length) return;
@@ -1119,7 +1126,13 @@ render();
     sb=panel.querySelector('.side-body'); if(sb) sb.scrollTop=top;
     clearTimeout(window.__hintT); if(HINT){ window.__hintT=setTimeout(function(){ var hb=$('hint'); if(hb) hb.classList.add('fade'); HINT=''; },2600); }
   }
-  function cfg(){var o={};Object.keys(V).forEach(function(k){if(k==='w')return;var v=V[k];o[k]=v==='true'?true:v==='false'?false:v;});o.focus=FOCUS;return o;}
+  var RT={};
+  window.addEventListener('message',function(e){ var d=e.data; if(!d||!d.__pv||e.source!==pv.contentWindow) return;
+    RT={auth:d.auth,method:d.method,accMode:d.accMode};
+    var np=d.tab, ns=String(d.suStep||1), nf=String(d.fpStep||1);
+    if(np!==V.page||ns!==V.suStep||nf!==V.fpStep){ V.page=np; V.suStep=ns; V.fpStep=nf; sync(); draw(); }
+  });
+  function cfg(){var o={};Object.keys(V).forEach(function(k){if(k==='w')return;var v=V[k];o[k]=v==='true'?true:v==='false'?false:v;});o.focus=FOCUS;if(RT.auth)o.curAuth=RT.auth;if(RT.method)o.curMethod=RT.method;if(RT.accMode)o.curAccMode=RT.accMode;return o;}
   function doc(){return SRC.replace('/*CFG*/{}',JSON.stringify(cfg()));}
   function sync(){
     var p=new URLSearchParams();
@@ -1142,12 +1155,15 @@ render();
   }
   function load(){ sync(); draw(); write(doc()); size(); }
   document.addEventListener('click',function(e){
+    if(e.target.closest('#resetAll')){ ALL.forEach(function(o){ if(o[0]==='template') return; V[o[0]]=isDesign(o[0])?siteOf(o[0]):DEF[o[0]]; }); V.suStep='1'; V.fpStep='1'; RT={}; FOCUS=''; HINT='Everything reset to the '+refName()+' look'; load(); return; }
     var p=e.target.closest('[data-preset]');
     if(p){ var pr=PRESETS.filter(function(x){return x[0]===p.dataset.preset;})[0]; ALL.forEach(function(o){ if(isDesign(o[0])) V[o[0]]=pr[3][o[0]]||siteOf(o[0]); }); HINT={site:'Back to the live site look',new:'New design applied — try Mobile and PIN',gsite:'GOJUDI design (22FUN green)',gplus:'GOJUDI with language, icon social on top and PIN'}[pr[0]]; load(); return; }
     var b=e.target.closest('button[data-k]'); if(!b) return;
     var k=b.dataset.k; V[k]=b.dataset.v;
     if(k==='template'){ ALL.forEach(function(o){ if(isDesign(o[0])) V[o[0]]=siteOf(o[0]); }); }
     if(k==='page'){ V.suStep='1'; V.fpStep='1'; }
+    if(k==='template'||k==='accountSwitch'){ delete RT.method; delete RT.accMode; }
+    if(k==='showAuthToggle'||k==='defaultAuth') delete RT.auth;
     FOCUS=(k==='page'||k==='w'||k==='suStep'||k==='fpStep')?'':k;
     HINT=(HINTS[k]&&HINTS[k][V[k]])||'';
     if(k==='w'){ sync(); draw(); size(); } else load();
