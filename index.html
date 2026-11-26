@@ -467,6 +467,7 @@ FLAGS.CN='<svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><re
 var LANGS=[['GB','English'],['TH','ภาษาไทย'],['KH','ខ្មែរ'],['VN','Tiếng Việt'],['CN','中文']];
 var GJ=CFG.template==='gojudi';
 if(!CFG.showAuthToggle) CFG.curAuth='';
+var ACC=String(CFG.accTypes||'u,m,e').split(',').map(function(x){return {u:'username',m:'mobile',e:'email'}[x];}).filter(Boolean); if(!ACC.length) ACC=['username'];
 var COUNTRIES=[['KH','Cambodia','+855'],['TH','Thailand','+66'],['VN','Vietnam','+84'],['MY','Malaysia','+60'],['ID','Indonesia','+62'],['PH','Philippines','+63']];
 var FOCUS=CFG.focus||'';
 if(CFG.theme==='light') document.body.classList.add('light');
@@ -557,6 +558,8 @@ function head(t,extra){
   if(CFG.topTabs&&(S.tab!=='forgot')&&(S.tab==='login'||S.suStep===1)) return tabs2()+(extra||'');
   return (b?'':'<div class="title">'+t+'</div>')+(extra||'');
 }
+if(ACC.indexOf(S.method)<0) S.method=ACC[0];
+if(CFG.accountSwitch==='inline'&&(ACC.indexOf('username')<0||ACC.indexOf('mobile')<0)) S.accMode=ACC.indexOf('mobile')>=0&&ACC.indexOf('username')<0?'mobile':'username';
 var app = document.getElementById('app');
 
 /* ---------- helpers ---------- */
@@ -629,23 +632,27 @@ function tabs2(){
     '<button type="button" role="tab" class="seg-btn'+(S.tab==='signup'?' on':'')+'" aria-selected="'+(S.tab==='signup')+'" data-act="goSignup">Sign Up<span class="badge">New User</span></button></div>';
 }
 function methodsPill(){
-  var m=[['username','Username','user14'],['mobile','Mobile','mobile14'],['email','Email','email14']];
+  var m=[['username','Username','user14'],['mobile','Mobile','mobile14'],['email','Email','email14']].filter(function(x){return ACC.indexOf(x[0])>=0;});
+  if(m.length<2) return '';
   return '<div class="seg seg-3" role="tablist" aria-label="Login method">'+m.map(function(x){
     return '<button type="button" role="tab" class="seg-btn'+(S.method===x[0]?' on':'')+'" aria-selected="'+(S.method===x[0])+'" data-act="method" data-v="'+x[0]+'">'+IC[x[2]]+'<span>'+x[1]+'</span></button>';
   }).join('')+'</div>';
 }
 function methodsUnderline(){
-  var m=GJ?[['username','Username'],['mobile','Mobile']]:[['username','Username'],['mobile','Mobile'],['email','Email']];
+  var m=[['username','Username'],['mobile','Mobile'],['email','Email']].filter(function(x){return ACC.indexOf(x[0])>=0;});
+  if(m.length<2) return '';
   return '<div class="ul-tabs" role="tablist" aria-label="Login method">'+m.map(function(x){return '<button type="button" role="tab" class="ul-tab'+(S.method===x[0]?' on':'')+'" aria-selected="'+(S.method===x[0])+'" data-act="method" data-v="'+x[0]+'">'+x[1]+'</button>';}).join('')+'</div>';
 }
 function methodsAny(){ if(CFG.accountSwitch==='pill') return methodsPill(); if(CFG.accountSwitch==='link') return switchLink(); if(CFG.accountSwitch==='underline') return methodsUnderline(); return ''; }
+function nextMethod(){ var i=ACC.indexOf(S.method); return ACC[(i+1)%ACC.length]; }
 function switchLink(){
-  var toUser=S.method!=='username';
-  return '<button type="button" class="switch-link" data-act="cycle">'+(toUser?IC.user14:IC.mobile14)+'<span>Log in with '+(toUser?'username':'mobile')+'</span>'+CHEV+'</button>';
+  if(ACC.length<2) return '';
+  var nx=nextMethod();
+  return '<button type="button" class="switch-link" data-act="cycle">'+IC[nx==='username'?'user14':nx==='mobile'?'mobile14':'email14']+'<span>Log in with '+nx+'</span>'+CHEV+'</button>';
 }
 function accountField(bind){
   bind=bind||'id';
-  if(CFG.accountSwitch==='inline') return field({kind:'account',bind:bind});
+  if(CFG.accountSwitch==='inline'&&ACC.indexOf('username')>=0&&ACC.indexOf('mobile')>=0) return field({kind:'account',bind:bind});
   if(S.method==='mobile') return field({kind:'phone',label:'Mobile No',ph:'Mobile No *',phOut:'Enter your mobile number',bind:bind});
   if(S.method==='email') return field({kind:'email',icon:'email',label:'Email',ph:'Email *',phOut:'Enter your email',bind:bind});
   return field({kind:'text',icon:'user',label:'Username',ph:'Please Enter Username *',phOut:'Enter your username',bind:bind});
@@ -902,7 +909,7 @@ app.addEventListener('click',function(e){
   var a=b.dataset.act, v=b.dataset.v, focusSel=null;
   if(a==='eye') S.show=!S.show;
   else if(a==='method'){S.method=v;S.id='';S.fp_id='';S.err={};}
-  else if(a==='cycle'){S.method=S.method==='username'?'mobile':'username';S.id='';S.err={};}
+  else if(a==='cycle'){S.method=nextMethod();S.id='';S.fp_id='';S.err={};}
   else if(a==='accSwitch'){S.accMode=S.accMode==='mobile'?'username':'mobile';S.id='';S.fp_id='';S.err={};}
   else if(a==='auth'){S.auth=v;S.err={};}
   else if(a==='goSignup'){S.tab='signup';S.suStep=1;S.err={};}
@@ -962,7 +969,8 @@ app.addEventListener('submit',function(e){e.preventDefault();submit();});
   var pinKeys=['pinStyle','pinEye'], phoneKeys=['phoneLayout','phoneIcon','codeDropdown','country'];
   if(pinKeys.indexOf(FOCUS)>=0) S.auth='pin';
   if(FOCUS==='defaultAuth') S.auth=CFG.defaultAuth;
-  if(phoneKeys.indexOf(FOCUS)>=0 && S.tab!=='signup'){ if(CFG.accountSwitch==='inline') S.accMode='mobile'; else S.method='mobile'; }
+  if(phoneKeys.indexOf(FOCUS)>=0 && S.tab!=='signup' && ACC.indexOf('mobile')>=0){ if(CFG.accountSwitch==='inline') S.accMode='mobile'; else S.method='mobile'; }
+  if(FOCUS==='accTypes'&&S.tab==='signup') S.tab='login';
   if(FOCUS==='showTip' && S.tab==='forgot' && S.fpStep===1) S.fpStep=2;
   if(FOCUS==='demoResult') S.tab='login';
 })();
@@ -981,7 +989,7 @@ render();
   var PW=['[data-f="pwd"]','[data-f="su_pwd"]','[data-f="fp_pwd"]','[data-pin]'];
   var map={pinStyle:['[data-pin]'],pinEye:['.pin-eye','[data-pin]'],showAuthToggle:['.toggle'].concat(PW),defaultAuth:['.toggle'].concat(PW),
     phoneLayout:['.f-split','.f-code'],phoneIcon:['.is-flag','.f-codebox','.f-code'],codeDropdown:['[data-act="cc"]','.f-codebox','.f-code'],country:['.f-codebox','.f-code'],
-    showIcon:['.f'],labelOutside:['.f'],showTip:['.tip-btn'].concat(PW),topTabs:['.seg-2','.ul-tabs','.title'],accountSwitch:['.seg-3','.ul-tabs','.switch-link','[data-act="accSwitch"]'],
+    showIcon:['.f'],labelOutside:['.f'],showTip:['.tip-btn'].concat(PW),topTabs:['.seg-2','.ul-tabs','.title'],accountSwitch:['.seg-3','.ul-tabs','.switch-link','[data-act="accSwitch"]'],accTypes:['.seg-3','.ul-tabs','.switch-link','[data-f="id"]','[data-f="fp_id"]'],
     btnIcon:['#cta','.btn-primary'],btnCase:['#cta','.btn-primary'],
     banner:['.gj-banner','.title'],social:['.soc'],socialPos:['.soc'],socialCount:['.soc'],lang:['.lang'],smsCode:['[data-f="su_sms"]','[data-f="su_phone"]']};
   var list=map[FOCUS]; if(!list) return;
@@ -1011,6 +1019,7 @@ render();
     ['Header',[
       ['banner','Banner','',[['true','On'],['false','Off']],'false'],
       ['topTabs','Form top','Title only, or Login / Sign Up tabs',[['false','Title'],['true','Pill tabs'],['underline','Underline']],'false','login signup'],
+      ['accTypes','Account types','Pick one or more — tabs only show with 2+',[['u','Username'],['m','Mobile'],['e','Email']],'u,m,e','login forgot'],
       ['accountSwitch','Account type','How users pick the account type',[['pill','Pill'],['underline','Underline'],['link','Link'],['inline','In field ⇄']],'pill','login forgot']]],
     ['Input field',[
       ['showIcon','Field icon','Icon at the left of each field',[['true','Show'],['false','Hide']],'true'],
@@ -1041,7 +1050,7 @@ render();
     ['gsite','GOJUDI design','GOJUDI layout, 22FUN green',{},'gojudi'],
     ['gplus','GOJUDI + more','Language, icon social on top, PIN',{lang:'true',social:'icon',socialPos:'top',showAuthToggle:'true',pinEye:'true'},'gojudi']
   ];
-  var TPL={ibs:{},'gojudi':{banner:'true',accountSwitch:'underline',topTabs:'false',social:'text',socialPos:'bottom',socialCount:'3',smsCode:'true',phoneLayout:'inline',phoneIcon:'flag',codeDropdown:'true',country:'TH',showAuthToggle:'false',pinEye:'true'}};
+  var TPL={ibs:{},'gojudi':{accTypes:'u,m',banner:'true',accountSwitch:'underline',topTabs:'false',social:'text',socialPos:'bottom',socialCount:'3',smsCode:'true',phoneLayout:'inline',phoneIcon:'flag',codeDropdown:'true',country:'TH',showAuthToggle:'false',pinEye:'true'}};
   function siteOf(k){var t=TPL[V.template]||TPL.ibs;return (k in t)?t[k]:SITE[k];}
   var NODESIGN=['template'];
   var PAGES=[['login','Login'],['signup','Sign Up'],['forgot','Forgot Password']];
@@ -1089,8 +1098,11 @@ render();
   var pv=$('pv'), sc=$('scaler'), stage=$('stage'), panel=$('panel'), varBtn=$('varBtn');
   var openGroups={'Template':true,'Social & language':true,'Theme':true,'Try it':true,'Header':true,'Input field':true,'Password / PIN':true,'Button':false};
 
-  function applies(o){ if(o[0]==='banner'&&V.template!=='gojudi') return false; if((o[0]==='socialPos'||o[0]==='socialCount')&&V.social==='off') return false; if(o[0]==='pinEye'&&V.pinStyle!=='boxes') return false; if(o[0]==='phoneIcon'&&V.showIcon!=='true') return false; return !o[5]||o[5].split(' ').indexOf(V.page)>=0;}
+  function applies(o){ if(o[0]==='accountSwitch'&&V.accTypes&&V.accTypes.split(',').length<2) return false; if(o[0]==='banner'&&V.template!=='gojudi') return false; if((o[0]==='socialPos'||o[0]==='socialCount')&&V.social==='off') return false; if(o[0]==='pinEye'&&V.pinStyle!=='boxes') return false; if(o[0]==='phoneIcon'&&V.showIcon!=='true') return false; return !o[5]||o[5].split(' ').indexOf(V.page)>=0;}
   function seg(key,choices,site){
+    if(key==='accTypes'){ var cur=V[key].split(','), st=(site||'').split(',');
+      return '<div class="seg multi" role="group">'+choices.map(function(c){ var on=cur.indexOf(c[0])>=0, sd=st.indexOf(c[0])>=0;
+        return '<button type="button" data-k="accTypes" data-t="'+c[0]+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'">'+(on?'✓ ':'')+c[1]+(sd?' <span class="site-dot" aria-hidden="true"></span>':'')+'</button>'; }).join('')+'</div>'; }
     return '<div class="seg" role="group">'+choices.map(function(c){
       var on=V[key]===c[0];
       return '<button type="button" data-k="'+key+'" data-v="'+c[0]+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'"'+(site===c[0]?' title="Live site"':'')+'>'+c[1]+(site===c[0]?' <span class="site-dot" aria-hidden="true"></span>':'')+'</button>';
@@ -1117,7 +1129,7 @@ render();
       var gc=rows.filter(function(o){return isDesign(o[0])&&V[o[0]]!==siteOf(o[0]);}).length;
       h+='<details data-g="'+g[0]+'"'+(openGroups[g[0]]?' open':'')+'><summary>'+g[0]+(gc?'<span class="badge">'+gc+'</span>':'')+'</summary><div class="opts">'+
         rows.map(function(o){var ch=isDesign(o[0])&&V[o[0]]!==siteOf(o[0]);
-          var wide=o[3].length>3||o[3].some(function(c){return c[1].length>10;});
+          var wide=o[0]==='accTypes'||o[3].length>3||o[3].some(function(c){return c[1].length>10;});
           return '<div class="opt'+(ch?' changed':'')+(wide?' wide':'')+'"><div class="opt-top"><span class="opt-name">'+o[1]+'</span>'+(ch?'<button type="button" class="undo" data-k="'+o[0]+'" data-v="'+siteOf(o[0])+'" title="Back to '+refName()+'" aria-label="Back to '+refName()+'">↺</button>':'')+'</div>'+seg(o[0],o[3],isDesign(o[0])?siteOf(o[0]):null)+'</div>';
         }).join('')+'</div></details>';
     });
@@ -1159,13 +1171,15 @@ render();
     var p=e.target.closest('[data-preset]');
     if(p){ var pr=PRESETS.filter(function(x){return x[0]===p.dataset.preset;})[0]; ALL.forEach(function(o){ if(isDesign(o[0])) V[o[0]]=pr[3][o[0]]||siteOf(o[0]); }); HINT={site:'Back to the live site look',new:'New design applied — try Mobile and PIN',gsite:'GOJUDI design (22FUN green)',gplus:'GOJUDI with language, icon social on top and PIN'}[pr[0]]; load(); return; }
     var b=e.target.closest('button[data-k]'); if(!b) return;
-    var k=b.dataset.k; V[k]=b.dataset.v;
+    var k=b.dataset.k;
+    if(k==='accTypes'&&b.dataset.t){ var cur=V.accTypes.split(','), t=b.dataset.t, i=cur.indexOf(t); if(i>=0){ if(cur.length===1){ HINT='Keep at least one account type'; draw(); return; } cur.splice(i,1); } else cur.push(t); V.accTypes=['u','m','e'].filter(function(x){return cur.indexOf(x)>=0;}).join(','); }
+    else V[k]=b.dataset.v;
     if(k==='template'){ ALL.forEach(function(o){ if(isDesign(o[0])) V[o[0]]=siteOf(o[0]); }); }
     if(k==='page'){ V.suStep='1'; V.fpStep='1'; }
-    if(k==='template'||k==='accountSwitch'){ delete RT.method; delete RT.accMode; }
+    if(k==='template'||k==='accountSwitch'||k==='accTypes'){ delete RT.method; delete RT.accMode; }
     if(k==='showAuthToggle'||k==='defaultAuth') delete RT.auth;
     FOCUS=(k==='page'||k==='w'||k==='suStep'||k==='fpStep')?'':k;
-    HINT=(HINTS[k]&&HINTS[k][V[k]])||'';
+    HINT=k==='accTypes'?(V.accTypes.split(',').length<2?'One account type — no tabs on Login and Forgot Password':'Account types: '+V.accTypes.split(',').map(function(x){return {u:'Username',m:'Mobile',e:'Email'}[x];}).join(' / ')):((HINTS[k]&&HINTS[k][V[k]])||'');
     if(k==='w'){ sync(); draw(); size(); } else load();
     FOCUS='';
   });
