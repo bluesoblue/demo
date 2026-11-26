@@ -376,6 +376,28 @@ body.light .soc-pill svg [fill="#FFFFFF"],body.light .soc-ico svg [fill="#FFFFFF
 body.light .flag svg [stroke="#FFFFFF"]{stroke:#FFFFFF}
 body.light .soc-pill.more{color:var(--ink)}
 
+/* ===== EU result pages ===== */
+.eu-done{display:flex;flex-direction:column;align-items:center;text-align:center}
+.eu-done .cheers{margin-top:28px;line-height:0}
+.eu-done h2{margin:14px 0 0;font-size:18px;font-weight:700;line-height:26px}
+.eu-done p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:19px}
+.eu-btns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:100%;max-width:380px;margin-top:28px}
+#app .eu-btns>*{margin-top:0}
+.btn-outline{display:flex;align-items:center;justify-content:center;height:45px;border:1px solid var(--lime);border-radius:4px;background:transparent;color:var(--ink);font:600 14px var(--font);cursor:pointer}
+.btn-outline:hover{background:var(--hover)}
+.eu-ok{display:flex;align-items:center;justify-content:center;width:100px;height:100px;margin-top:20px;border-radius:50%;background:var(--success)}
+.eu-done .btn-small{width:auto;min-width:120px;height:40px;margin-top:20px;padding:0 20px;font-size:14px;letter-spacing:0}
+body.gj .eu-btns .btn-primary,body.gj .btn-outline{height:48px;border-radius:100px}
+body.ew8 .btn-outline{height:42px}
+/* EW8 login */
+.ew-row{justify-content:flex-end;margin-top:12px}
+body.ew8 .check{border-radius:3px}
+body.ew8 #app[data-tab="login"] .f-box{height:44px;border-radius:8px;background:transparent;border-color:#9A9AA0}
+body.ew8.light #app[data-tab="login"] .f-box{border-color:#C4C4C8}
+.ew-forgot{display:block;margin:14px auto 0;padding:0;background:none;border:0;color:var(--tab-on);font:400 13px var(--font);text-decoration:underline;cursor:pointer}
+.ew-help{margin:14px 0 0;text-align:center;font-size:13px;line-height:19px}
+.ew-help a,.ew-join{color:var(--tab-on);text-decoration:underline;cursor:pointer;background:none;border:0;padding:0;font:inherit}
+.ew-help+.ew-help{margin-top:4px}
 /* ===== EW8 template (EW8 form style, 22FUN green) ===== */
 body.ew8 .logo img{display:none}
 body.ew8 .logo .logo-ph{display:none}
@@ -581,7 +603,7 @@ function langHTML(){
 function pageTitle(){
   if(S.tab==='login') return 'Login';
   if(S.tab==='forgot') return 'Forgot Password';
-  return ['',GJ?'Register':'Sign Up','Bank Details',GJ?'Bank Details':'Confirm Membership',GJ?'Bank Details':'Welcome'][S.suStep]||'Sign Up';
+  return ['',GJ?'Register':'Sign Up','Bank Details',GJ?'Bank Details':'Confirm Membership',GJ&&!EU?'Bank Details':'Welcome'][S.suStep]||'Sign Up';
 }
 function bannerHTML(){
   if(!(GJ&&CFG.banner)) return '';
@@ -589,12 +611,12 @@ function bannerHTML(){
     '<div class="gj-head">'+(typeof GJLOGO==='string'&&GJLOGO?'<span class="gj-logo"><img src="'+GJLOGO+'" alt="GOJUDI"></span>':'<span class="gj-logo">LOGO</span>')+'<span class="gj-title">'+pageTitle()+'</span></div></div>';
 }
 function ewHead(){
-  var st=Math.min(3,S.suStep);
+  var st=SKIPC?(S.suStep>=3?3:S.suStep):Math.min(3,S.suStep);
   return '<div class="ew-head"><h1>Please fill out the following details to sign up for FREE</h1><p>Fill in only real information. For your own benefit in withdrawing money</p></div>'+
     '<div class="ew-steps" aria-label="Step '+st+' of 3"><i class="bar" style="width:'+((st-1)*100)+'px"></i>'+[1,2,3].map(function(n){return '<span class="'+(n===st?'on':n<st?'ok':'')+'"'+(n===st?' aria-current="step"':'')+'>'+n+'</span>';}).join('')+'</div>';
 }
 function head(t,extra){
-  if(EW&&S.tab==='signup'&&S.suStep<4) return ewHead()+(TT&&S.suStep===1?tabs2():'')+(extra||'');
+  if(EW&&S.tab==='signup'&&(S.suStep<4||SKIPC)) return ewHead()+(TT&&S.suStep===1?tabs2():'')+(extra||'');
   var b=GJ&&CFG.banner;
   var top=S.tab==='login'||S.tab==='forgot'&&S.fpStep===1||S.tab==='signup'&&S.suStep===1;
   if(TT&&S.tab!=='forgot'&&top) return tabs2()+(extra||'');
@@ -605,6 +627,8 @@ if(ACC.indexOf(S.method)<0) S.method=ACC[0];
 if(ACC.indexOf(S.accMode)<0) S.accMode=ACC[0];
 S.suMethod=SUF.indexOf(CFG.curSuMethod)>=0?CFG.curSuMethod:SUF[0];
 function listOf(sk){return sk==='suMethod'?SUF:ACC;}
+var EU=CFG.resultStyle!=='asian', SKIPC=CFG.confirmStep==='skip';
+var CHEERS='<svg aria-hidden="true" width="112" height="76" viewBox="0 0 112 76"><g transform="rotate(-14 34 44)"><rect x="16" y="22" width="34" height="46" rx="5" fill="#FACC15"/><rect x="22" y="30" width="5" height="30" rx="2.5" fill="#FDE68A"/><path d="M50 32h7a7 7 0 0 1 7 7v12a7 7 0 0 1-7 7h-7" fill="none" stroke="#EAB308" stroke-width="5"/><circle cx="20" cy="20" r="7" fill="#FFFFFF"/><circle cx="30" cy="16" r="8" fill="#FFFFFF"/><circle cx="41" cy="18" r="7.5" fill="#FFFFFF"/><circle cx="49" cy="22" r="5" fill="#FFFFFF"/></g><g transform="rotate(14 78 44)"><rect x="62" y="22" width="34" height="46" rx="5" fill="#FACC15"/><rect x="85" y="30" width="5" height="30" rx="2.5" fill="#FDE68A"/><path d="M62 32h-7a7 7 0 0 0-7 7v12a7 7 0 0 0 7 7h7" fill="none" stroke="#EAB308" stroke-width="5"/><circle cx="63" cy="22" r="5" fill="#FFFFFF"/><circle cx="71" cy="18" r="7.5" fill="#FFFFFF"/><circle cx="82" cy="16" r="8" fill="#FFFFFF"/><circle cx="92" cy="20" r="7" fill="#FFFFFF"/></g></svg>';
 var app = document.getElementById('app');
 
 /* ---------- helpers ---------- */
@@ -698,9 +722,10 @@ function switchLink(lst,sk){
 function accountField(bind){
   bind=bind||'id';
   if(CFG.accountSwitch==='inline'&&ACC.length>1) return field({kind:'account',bind:bind,list:ACC,skey:'accMode'});
-  if(S.method==='mobile') return field({kind:'phone',label:'Mobile No',ph:'Mobile No *',phOut:'Enter your mobile number',bind:bind});
-  if(S.method==='email') return field({kind:'email',icon:'email',label:'Email',ph:'Email *',phOut:'Enter your email',bind:bind});
-  return field({kind:'text',icon:'user',label:'Username',ph:'Please Enter Username *',phOut:'Enter your username',bind:bind});
+  var ewl=EW&&S.tab==='login';
+  if(S.method==='mobile') return field({kind:'phone',label:'Mobile No',ph:ewl?'Enter Your Mobile Number':'Mobile No *',phOut:'Enter your mobile number',bind:bind});
+  if(S.method==='email') return field({kind:'email',icon:'email',label:'Email',ph:ewl?'Enter Your Email':'Email *',phOut:'Enter your email',bind:bind});
+  return field({kind:'text',icon:'user',label:'Username',ph:ewl?'Enter Your Username':'Please Enter Username *',phOut:'Enter your username',bind:bind});
 }
 function pinHTML(bind,label){
   var i, cells='', v=esc(S[bind]), er=S.err[bind], cls=(er?' has-err':'')+(er&&S.shake?' shake':'');
@@ -730,7 +755,26 @@ function cta(text,busy,icon){
 }
 
 /* ---------- pages ---------- */
+function ewLoginHTML(){
+  var lo=CFG.labelOutside; CFG.labelOutside=false;
+  var h=head('Log In');
+  h+=socialHTML('top');
+  h+=methodsAny();
+  h+='<div class="mt12">'+accountField('id')+'</div>';
+  h+=authToggle();
+  h+=S.auth==='password'?'<div class="mt16">'+field({kind:'password',label:'Password',ph:'Password',phOut:'Password',bind:'pwd'})+'</div>':pinHTML('pin','PIN');
+  CFG.labelOutside=lo;
+  h+='<div class="row ew-row">'+checkBtn('remember',S.remember,'Remember Me')+'</div>';
+  h+=cta('Login','Logging in…','login');
+  h+='<button type="button" class="ew-forgot" data-act="goForgot">Forgot Password?</button>';
+  h+=langHTML();
+  h+='<p class="ew-help">Any issues? Please contact our <a data-act="ewHelp">customer service</a></p>';
+  if(!TT) h+='<p class="ew-help">Not a member? <button type="button" class="ew-join" data-act="goSignup">Join Now</button></p>';
+  h+=socialHTML('bottom');
+  return h;
+}
 function loginHTML(){
+  if(EW) return ewLoginHTML();
   var h=head('Login');
   h+=socialHTML('top');
   h+=methodsAny();
@@ -748,7 +792,7 @@ function signupHTML(){
   var st=S.suStep;
   if(st===2) return bankHTML();
   if(st===3) return GJ?bankHTML(true)+confirmModal():confirmHTML();
-  if(st===4) return GJ?bankHTML(true)+doneModal():doneHTML();
+  if(st===4) return EU?euDone():GJ?bankHTML(true)+doneModal():doneHTML();
   var h=head(GJ?'Register':'Sign Up');
   h+=socialHTML('top');
   var F={su_user:function(){return field({kind:'text',icon:'user',label:'Username',ph:'Please Enter Username *',phOut:'Enter your username',bind:'su_user'});},
@@ -811,6 +855,10 @@ function confirmHTML(){
     (S.loading?'<button type="submit" class="btn-primary ready loading" disabled aria-busy="true"><span class="spin" aria-hidden="true"></span>Confirming…</button>':'<button type="submit" class="btn-primary ready" id="cta">'+bi('check')+'<span>Confirm</span></button>')+'</div>';
   return h;
 }
+function euDone(){
+  return (EW&&SKIPC?ewHead():'')+'<div class="eu-done"><div class="cheers">'+CHEERS+'</div><h2>Congratulations, you’re done!</h2><p>Thank you for your registration.</p>'+
+    '<div class="eu-btns"><button type="button" class="btn-outline" data-act="euHome">Home</button><button type="button" class="btn-primary ready" data-act="euDeposit"><span>Deposit</span></button></div></div>';
+}
 function doneHTML(){
   var secret=S.auth==='pin'?S.su_pin:S.su_pwd, secretLabel=S.auth==='pin'?'PIN':'Password';
   var h='<div class="done-title">Successfully signed up!</div>';
@@ -838,6 +886,10 @@ function forgotHTML(){
       h+='<div class="mt16">'+field({kind:'password',label:'Confirm New Password',ph:'Confirm New Password *',phOut:'Enter new password again',bind:'fp_pwd2'})+'</div>';
     } else h+=pinHTML('fp_pin','New 6-digit PIN')+pinHTML('fp_pin2','Confirm new PIN');
     h+=back+cta('Reset '+(S.auth==='pin'?'PIN':'Password'),'Saving…','check');
+  } else if(EU){
+    h+='<div class="eu-done"><span class="eu-ok"><svg aria-hidden="true" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>'+
+      '<h2>'+(S.auth==='pin'?'PIN':'Password')+' Changed Successfully!</h2><p>Your '+(S.auth==='pin'?'PIN':'password')+' has been updated!</p>'+
+      '<button type="button" class="btn-primary ready btn-small" data-act="goLogin"><span>Login Now</span></button></div>';
   } else {
     h+='<div class="done"><span class="done-ico"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>'+
       '<h2>'+(S.auth==='pin'?'PIN':'Password')+' updated</h2><p>You can now log in with your new '+(S.auth==='pin'?'PIN':'password')+'.</p></div>';
@@ -929,6 +981,7 @@ function clearErr(k){
 }
 function render(){
   app.classList.toggle('btn-upper',CFG.btnCase==='upper');
+  app.dataset.tab=S.tab;
   var body=S.tab==='login'?loginHTML():S.tab==='forgot'?forgotHTML():signupHTML();
   app.innerHTML=GJ?bannerHTML()+'<div class="gj-card">'+body+'</div>':body;
   paintPin(); app.querySelectorAll('[data-rules]').forEach(function(r){ paintRules(r.dataset.rules); });
@@ -953,7 +1006,7 @@ function submit(){
       if(CFG.demoResult==='success') toast('success','Login successful. Welcome back!');
       else toast('error','Incorrect username or password. Please try again.');
     } else if(S.tab==='signup'){
-      S.suStep=Math.min(4,S.suStep+1);
+      S.suStep=Math.min(4,S.suStep+1); if(SKIPC&&S.suStep===3) S.suStep=4;
     } else if(S.fpStep===1){
       S.fpStep=2; startTimer(); toast('success','Verification code sent to your '+via()+'.');
     } else if(S.fpStep===2){
@@ -986,6 +1039,9 @@ app.addEventListener('click',function(e){
   else if(a==='ccPick'){S.country=v; S.ccOpen=null; focusSel='[data-f] input[type="tel"]';}
   else if(a==='tip'){S.tipOpen=S.tipOpen===v?null:v; S.ccOpen=null;}
   else if(a==='getCode'){ if(S.timer) return; startTimer(); toast('success','Verification code sent to your '+(v==='su_ecode'?'email':v==='su_sms'?'mobile number':via())+'.'); focusSel='[data-bind="'+(v||'fp_code')+'"]'; }
+  else if(a==='euHome'){ toast('success','Go to Home (demo)'); return; }
+  else if(a==='euDeposit'){ toast('success','Go to Deposit (demo)'); return; }
+  else if(a==='ewHelp'){ toast('success','Open customer service (demo)'); return; }
   else if(a==='social'){ toast('success','Connecting with '+v+'… (demo)'); return; }
   else if(a==='socMore') S.socOpen=!S.socOpen;
   else if(a==='lang'){ S.langOpen=!S.langOpen; S.ccOpen=S.tipOpen=null; }
@@ -1041,6 +1097,7 @@ if(CFG.walk){
   S.fp_id='player01'; S.fp_code='123456'; S.fp_pwd='newpass1'; S.fp_pwd2='newpass1'; S.fp_pin='654321'; S.fp_pin2='654321';
 }
 if(S.suStep>=2&&!S.su_user){ S.su_sms='123456'; S.su_email='player01@mail.com'; S.su_ecode='123456'; S.su_user='player01'; S.su_phone='0926888080'; S.su_pwd='abc123'; S.su_pwd2='abc123'; S.su_pin='123456'; S.su_pin2='123456'; }
+if(SKIPC&&S.suStep===3) S.suStep=4;
 if(S.suStep>=3){ S.su_bank=banks()[0][0]; S.su_acc='28384858688'; S.su_name='Micheal Eng'; }
 if(CFG.showErrors) S.err=validate();
 render();
@@ -1081,6 +1138,9 @@ render();
       ['topTabs','Form top','Title only, or Login / Sign Up tabs',[['none','None'],['false','Title'],['true','Pill tabs'],['underline','Underline']],'false','login signup forgot'],
       ['accTypes','Account types','Pick one or more — tabs only show with 2+',[['u','Username'],['m','Mobile'],['e','Email']],'u,m,e','login forgot'],
       ['accountSwitch','Tab style','How users switch account type',[['pill','Pill'],['underline','Underline'],['link','Link'],['inline','In field ⇄']],'pill','login signup forgot']]],
+    ['Result pages',[
+      ['resultStyle','Result style','Sign-up success and password changed',[['eu','EU'],['asian','Asian']],'eu','signup forgot'],
+      ['confirmStep','Confirm step','Confirm Membership before success',[['show','Show'],['skip','Skip']],'show','signup']]],
     ['Sign up',[
       ['suFields','Fields','',[['u','Username'],['m','Mobile'],['e','Email']],'u,m','signup'],
       ['suMethod','Method','',[['none','No method'],['tabs','Tabs']],'none','signup']]],
@@ -1115,7 +1175,7 @@ render();
     ['gsite','GOJUDI design','GOJUDI layout, 22FUN green',{},'gojudi'],
     ['gplus','GOJUDI + more','Language, icon social on top, PIN',{lang:'true',social:'icon',socialPos:'top',showAuthToggle:'true',pinEye:'true'},'gojudi']
   ];
-  var TPL={ibs:{},ew8:{labelOutside:'true',showIcon:'false',btnCase:'upper',phoneIcon:'flag',codeDropdown:'true'},'gojudi':{accTypes:'u,m',banner:'true',accountSwitch:'underline',topTabs:'false',social:'text',socialPos:'bottom',socialCount:'3',smsCode:'true',phoneLayout:'inline',phoneIcon:'flag',codeDropdown:'true',country:'TH',showAuthToggle:'false',pinEye:'true'}};
+  var TPL={ibs:{},ew8:{confirmStep:'skip',accountSwitch:'underline',labelOutside:'true',showIcon:'false',btnCase:'upper',phoneIcon:'flag',codeDropdown:'true'},'gojudi':{resultStyle:'asian',accTypes:'u,m',banner:'true',accountSwitch:'underline',topTabs:'false',social:'text',socialPos:'bottom',socialCount:'3',smsCode:'true',phoneLayout:'inline',phoneIcon:'flag',codeDropdown:'true',country:'TH',showAuthToggle:'false',pinEye:'true'}};
   function siteOf(k){var t=TPL[V.template]||TPL.ibs;return (k in t)?t[k]:SITE[k];}
   var NODESIGN=['template'], MULTI=['accTypes','suFields'], TNAME={u:'Username',m:'Mobile',e:'Email'};
   var PAGES=[['login','Login'],['signup','Sign Up'],['forgot','Forgot Password']];
@@ -1137,6 +1197,8 @@ render();
     walk:{'true':'Now press Next / Confirm to go through the steps','false':'Manual — fill the fields yourself'},
     showErrors:{'true':'Every validation error is shown','false':'Errors hidden'},
     demoResult:{error:'Press Login to see the error message (tip: Fill-in → Auto-fill)',success:'Press Login to see the success message (tip: Fill-in → Auto-fill)'},
+    resultStyle:{eu:'EU — Congratulations page / Password Changed Successfully',asian:'Asian — credentials page / Password updated'},
+    confirmStep:{show:'Confirm Membership step shown',skip:'Confirm step skipped — Bank goes straight to success'},
     suMethod:{none:'No method — every sign-up field shows in one form',tabs:'Tabs — users pick how to sign up, only that field shows'},
     topTabs:{none:'Nothing above the first field (banner title stays)','true':'Login / Sign Up pill tabs at the top','underline':'Login / Sign Up underline tabs at the top','false':'Title at the top'},
     accountSwitch:{underline:'Username / Mobile underline tabs',pill:'Username / Mobile / Email pill',link:'“Log in with …” link under the title',inline:'Tap ⇄ inside the field to switch'},
@@ -1162,7 +1224,7 @@ render();
   if(TPL[V.template]) Object.keys(TPL[V.template]).forEach(function(k){ if(!q.get(k)) V[k]=TPL[V.template][k]; });
   var $=function(id){return document.getElementById(id);};
   var pv=$('pv'), sc=$('scaler'), stage=$('stage'), panel=$('panel'), varBtn=$('varBtn');
-  var openGroups={'Sign up':true,'Template':true,'Social & language':true,'Theme':true,'Try it':true,'Header':true,'Input field':true,'Password / PIN':true,'Button':false};
+  var openGroups={'Result pages':true,'Sign up':true,'Template':true,'Social & language':true,'Theme':true,'Try it':true,'Header':true,'Input field':true,'Password / PIN':true,'Button':false};
 
   function applies(o){ if(o[0]==='accountSwitch'){ if(V.page==='signup') return V.suMethod==='tabs'&&V.suFields.split(',').length>1; if(V.accTypes.split(',').length<2) return false; } if(o[0]==='suMethod'&&V.suFields.split(',').length<2) return false; if(o[0]==='banner'&&V.template!=='gojudi') return false; if((o[0]==='socialPos'||o[0]==='socialCount')&&V.social==='off') return false; if(o[0]==='pinEye'&&V.pinStyle!=='boxes') return false; if(o[0]==='phoneIcon'&&V.showIcon!=='true') return false; return !o[5]||o[5].split(' ').indexOf(V.page)>=0;}
   function seg(key,choices,site){
@@ -1184,7 +1246,8 @@ render();
     $('widthSeg').innerHTML=WIDTHS.map(function(p){var on=V.w===p[0];return '<button type="button" data-k="w" data-v="'+p[0]+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'">'+p[1]+'</button>';}).join('');
     var st=STEPS[V.page], sn=$('steps');
     if(st){ var cur=+V[st[0]]; sn.hidden=false;
-      sn.innerHTML='<span class="lbl">Jump to step</span>'+st[1].map(function(n,i){var k=i+1;return (i?'<span class="arrow" aria-hidden="true">›</span>':'')+'<button type="button" class="step'+(k===cur?' on':k<cur?' done':'')+'" data-k="'+st[0]+'" data-v="'+k+'" aria-current="'+(k===cur?'step':'false')+'"><b>'+k+'</b>'+n+'</button>';}).join('');
+      var lbls=st[1].map(function(n,i){return [n,i+1];}); if(V.page==='signup'&&V.confirmStep==='skip') lbls=lbls.filter(function(x){return x[1]!==3;});
+      sn.innerHTML='<span class="lbl">Jump to step</span>'+lbls.map(function(x,i){var n=x[0],k=x[1];return (i?'<span class="arrow" aria-hidden="true">›</span>':'')+'<button type="button" class="step'+(k===cur?' on':k<cur?' done':'')+'" data-k="'+st[0]+'" data-v="'+k+'" aria-current="'+(k===cur?'step':'false')+'"><b>'+(i+1)+'</b>'+n+'</button>';}).join('');
     } else sn.hidden=true;
     var n=changes();
     $('count').innerHTML=n?'<span class="badge">'+n+'</span> vs '+refName():'<span class="site-dot"></span> Same as '+refName();
@@ -1243,6 +1306,8 @@ render();
     else V[k]=b.dataset.v;
     if(k==='template'){ ALL.forEach(function(o){ if(isDesign(o[0])) V[o[0]]=siteOf(o[0]); }); }
     if(k==='page'){ V.suStep='1'; V.fpStep='1'; }
+    if(k==='resultStyle'){ if(V.page==='forgot') V.fpStep='3'; else { V.page='signup'; V.suStep='4'; } }
+    if(k==='confirmStep'&&V.confirmStep==='skip'&&V.suStep==='3') V.suStep='4';
     if(k==='template'||k==='accountSwitch'||k==='accTypes'){ delete RT.method; delete RT.accMode; }
     if(k==='template'||k==='suFields'||k==='suMethod') delete RT.suMethod;
     if(k==='showAuthToggle'||k==='defaultAuth') delete RT.auth;
