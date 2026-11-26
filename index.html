@@ -61,7 +61,9 @@ details[open] summary::after{transform:rotate(-135deg)}
 .opt-top{flex:1;display:flex;align-items:center;gap:4px;min-width:0}
 .opt-name{color:#F4F4F5}
 .info{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#3F3F46;color:#D4D4D8;font-size:10px;font-weight:700;cursor:help;flex-shrink:0}
-.hint-bar{margin:0 16px 8px;padding:8px 10px;border-radius:8px;background:rgba(132,204,22,.1);color:#D9F99D;font-size:12px}
+.side{position:relative}
+.hint-bar{position:absolute;left:16px;right:16px;bottom:14px;z-index:5;padding:10px 12px;border-radius:10px;background:#22301A;border:1px solid #3F6212;color:#D9F99D;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.5);pointer-events:none;transition:opacity .3s}
+.hint-bar.fade{opacity:0}
 .hint-bar[hidden]{display:none}
 .undo{padding:0 2px;border:0;background:none;color:#84CC16;font-size:13px;cursor:pointer}
 .opt .seg{display:flex;width:196px;flex-shrink:0}
@@ -400,6 +402,18 @@ body.gj .row .plain-btn{color:var(--error);font-size:16px;font-weight:600;text-d
 body.gj .btn-primary{height:50px;margin-top:20px;border-radius:100px;font-size:20px;font-weight:700;letter-spacing:0;opacity:1}
 body.gj .btn-primary:not(.ready){opacity:.55}
 body.gj .btn-grey{height:50px;border-radius:100px;font-size:20px;letter-spacing:0}
+body.gj .btn-row .btn-primary{margin-top:0}
+.modal-bg{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.65)}
+.modal{width:100%;max-width:520px;padding:32px 40px;background:var(--popover);border:1px solid var(--divider);border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.modal-title{margin:0;text-align:center;color:var(--tab-on);font-size:22px;font-weight:700;line-height:30px}
+.modal-rows{display:grid;gap:12px;margin:20px 0 0;font-size:16px;line-height:22px}
+.modal-rows div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.modal-rows dt{color:var(--muted)}
+.modal-rows dd{margin:0;color:var(--ink);word-break:break-all}
+.modal .btn-row{margin-top:28px}
+.modal-bg .modal .btn-primary,.modal-bg .modal .btn-grey{height:48px;margin-top:0;border-radius:6px;font-size:16px;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+body.light .modal-bg{background:rgba(0,0,0,.4)}
+@media (max-width:767px){.modal{padding:24px 20px}.modal-rows{font-size:14px}}
 body.gj .foot{font-size:16px;font-weight:500}
 body.gj .link{color:var(--tab-on);font-size:16px;font-weight:500}
 body.gj .seg-btn.on{background:var(--grad)}
@@ -522,7 +536,7 @@ function langHTML(){
 function pageTitle(){
   if(S.tab==='login') return 'Login';
   if(S.tab==='forgot') return 'Forgot Password';
-  return ['',GJ?'Register':'Sign Up','Bank Details','Confirm Membership','Welcome'][S.suStep]||'Sign Up';
+  return ['',GJ?'Register':'Sign Up','Bank Details',GJ?'Bank Details':'Confirm Membership','Welcome'][S.suStep]||'Sign Up';
 }
 function bannerHTML(){
   if(!(GJ&&CFG.banner)) return '';
@@ -671,7 +685,7 @@ function loginHTML(){
 function signupHTML(){
   var st=S.suStep;
   if(st===2) return bankHTML();
-  if(st===3) return confirmHTML();
+  if(st===3) return GJ?bankHTML(true)+confirmModal():confirmHTML();
   if(st===4) return doneHTML();
   var h=head(GJ?'Register':'Sign Up');
   h+=socialHTML('top');
@@ -693,13 +707,20 @@ function signupHTML(){
   h+=socialHTML('bottom');
   return h;
 }
-function bankHTML(){
+function bankHTML(behind){
   var h=head('Bank Details')+'<p class="sub">Add the bank account you will use for deposits and withdrawals.</p>';
   h+='<div class="mt12">'+field({kind:'bank',label:'Bank',ph:'Select your bank *',phOut:'Select your bank',bind:'su_bank'})+'</div>';
   h+='<div class="mt16">'+field({kind:'text',icon:'card',label:'Bank Account Number',ph:'Bank Account Number *',phOut:'Enter your account number',bind:'su_acc',digits:true,valid:true})+'</div>';
   h+='<div class="mt16">'+field({kind:'text',icon:'user',label:'Account Holder Name',ph:'Account Holder Name *',phOut:'Name as shown on your bank account',bind:'su_name',valid:true})+'</div>';
-  h+=cta('Next','Checking…');
+  h+=behind?'<button type="button" class="btn-primary ready" tabindex="-1" aria-hidden="true">'+bi('next')+'<span>Next</span></button>':cta('Next','Checking…');
   return h;
+}
+function confirmModal(){
+  var rows=[['Phone Number',dial()+' '+S.su_phone],['Account Number',S.su_acc],['Bank Name',maskName()],['Account Name',S.su_name]];
+  return '<div class="modal-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle"><h2 id="mtitle" class="modal-title">Confirm Membership</h2>'+
+    '<dl class="modal-rows">'+rows.map(function(r){return '<div><dt>'+r[0]+':</dt><dd>'+esc(r[1]||'—')+'</dd></div>';}).join('')+'</dl>'+
+    '<div class="btn-row"><button type="button" class="btn-grey" data-act="suBack"'+(S.loading?' disabled':'')+'>'+bi('cancel')+'<span>Cancel</span></button>'+
+    (S.loading?'<button type="submit" class="btn-primary ready loading" disabled aria-busy="true"><span class="spin" aria-hidden="true"></span>Confirming…</button>':'<button type="submit" class="btn-primary ready" id="cta">'+bi('check')+'<span>Confirm</span></button>')+'</div></div></div>';
 }
 function maskName(){var b=bankBy(S.su_bank);return b?b[1]:'—';}
 function confirmHTML(){
@@ -947,7 +968,7 @@ render();
   var el=null; for(var i=0;i<list.length&&!el;i++) el=app.querySelector(list[i]);
   if(!el) return;
   var box=el.closest('.f,[data-pin],.toggle,.seg,.ul-tabs,.soc,.lang,.gj-banner,.switch-link,.btn-primary,.title')||el;
-  box.classList.add('hl'); box.scrollIntoView({block:'center'});
+  box.classList.add('hl'); var r=box.getBoundingClientRect(); if(r.top<0||r.bottom>innerHeight) window.scrollTo(0,Math.max(0,scrollY+r.top-innerHeight/2+r.height/2));
   setTimeout(function(){box.classList.remove('hl');},1800);
 })();
 <\/script>
@@ -1069,7 +1090,7 @@ render();
     var n=changes();
     $('count').innerHTML=n?'<span class="badge">'+n+'</span> vs '+refName():'<span class="site-dot"></span> Same as '+refName();
     var h='<div class="side-head"><h2>Options</h2><p><span class="site-dot"></span> = '+refName()+'</p><div class="presets">'+
-      PRESETS.filter(function(p){return p[4]===V.template;}).map(function(p){var on=presetOn(p);return '<button type="button" class="preset'+(on?' on':'')+'" data-preset="'+p[0]+'" aria-pressed="'+on+'"><strong>'+p[1]+'</strong><span>'+p[2]+'</span></button>';}).join('')+'</div></div><div class="hint-bar" id="hint"'+(HINT?'':' hidden')+'>'+HINT+'</div><div class="side-body">';
+      PRESETS.filter(function(p){return p[4]===V.template;}).map(function(p){var on=presetOn(p);return '<button type="button" class="preset'+(on?' on':'')+'" data-preset="'+p[0]+'" aria-pressed="'+on+'"><strong>'+p[1]+'</strong><span>'+p[2]+'</span></button>';}).join('')+'</div></div><div class="side-body">';
     GROUPS.forEach(function(g){
       var rows=g[1].filter(applies); if(!rows.length) return;
       var gc=rows.filter(function(o){return isDesign(o[0])&&V[o[0]]!==siteOf(o[0]);}).length;
@@ -1079,7 +1100,10 @@ render();
           return '<div class="opt'+(ch?' changed':'')+(wide?' wide':'')+'"><div class="opt-top"><span class="opt-name">'+o[1]+'</span>'+(ch?'<button type="button" class="undo" data-k="'+o[0]+'" data-v="'+siteOf(o[0])+'" title="Back to '+refName()+'" aria-label="Back to '+refName()+'">↺</button>':'')+'</div>'+seg(o[0],o[3],isDesign(o[0])?siteOf(o[0]):null)+'</div>';
         }).join('')+'</div></details>';
     });
-    panel.innerHTML=h+'</div>';
+    var sb=panel.querySelector('.side-body'), top=sb?sb.scrollTop:0;
+    panel.innerHTML=h+'</div><div class="hint-bar" id="hint"'+(HINT?'':' hidden')+' role="status">'+HINT+'</div>';
+    sb=panel.querySelector('.side-body'); if(sb) sb.scrollTop=top;
+    clearTimeout(window.__hintT); if(HINT){ window.__hintT=setTimeout(function(){ var hb=$('hint'); if(hb) hb.classList.add('fade'); HINT=''; },2600); }
   }
   function cfg(){var o={};Object.keys(V).forEach(function(k){if(k==='w')return;var v=V[k];o[k]=v==='true'?true:v==='false'?false:v;});o.focus=FOCUS;return o;}
   function doc(){return SRC.replace('/*CFG*/{}',JSON.stringify(cfg()));}
