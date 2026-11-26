@@ -103,7 +103,7 @@ details[open] summary::after{transform:rotate(-135deg)}
   --bg-desktop:#000000; --bg-mobile:#121212;
   --field-bg:#2B2B31; --field-border:#0E0E0F; --field-focus:#047857; --placeholder:#505050;
   --pill-bg:#222121; --grad:linear-gradient(rgb(132,204,22),rgb(4,120,87));
-  --green:#047857; --error:#FF5A5F;
+  --green:#047857; --error:#FF0B0B; --success:#0BB212; --warning:#F4B408; --info:#0093FF;
   --ink:#FFFFFF; --muted-2:rgba(255,255,255,.5); --popover:#1E1E22; --divider:#3A3A40; --raised:#1C1C1F; --btn-grey:#4A4A50; --hover:#2B2B31; --lime:#84CC16; --toggle-border:#5F5F5F; --muted:#C6C6C6; --required:#FF0000;
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -256,16 +256,16 @@ input:focus{outline:none}
 .meter i{flex:1;height:4px;border-radius:2px;background:#3A3A40}
 .meter-t{min-width:60px;text-align:right;font-size:12px;color:var(--muted)}
 .rules[data-lvl="1"] .meter i:nth-child(1){background:var(--error)}
-.rules[data-lvl="2"] .meter i:nth-child(-n+2){background:#F5A524}
-.rules[data-lvl="3"] .meter i{background:#22C55E}
+.rules[data-lvl="2"] .meter i:nth-child(-n+2){background:var(--warning)}
+.rules[data-lvl="3"] .meter i{background:var(--success)}
 .rules ul{display:flex;flex-wrap:wrap;gap:4px 14px;margin:8px 0 0;padding:0;list-style:none;font-size:12px;line-height:18px;color:#8A8A90}
 .rules li::before{content:"○";margin-right:5px}
-.rules li.ok{color:#22C55E}
+.rules li.ok{color:var(--success)}
 .rules li.ok::before{content:"✓"}
 .toasts{position:fixed;left:50%;top:16px;z-index:50;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;width:max-content;max-width:calc(100% - 32px)}
 .toast{display:flex;align-items:center;gap:10px;padding:10px 8px 10px 14px;background:var(--popover);border:1px solid var(--divider);border-radius:8px;box-shadow:0 12px 32px rgba(0,0,0,.5);font-size:14px;line-height:20px;animation:tin .2s ease}
 .toast .t-ico{display:flex}
-.toast.success .t-ico{color:#22C55E}
+.toast.success .t-ico{color:var(--success)}
 .toast.error .t-ico{color:var(--error)}
 .toast button{width:28px;height:28px;border:0;border-radius:6px;background:none;color:#A1A1AA;font-size:18px;cursor:pointer}
 .toast button:hover{background:var(--hover);color:var(--ink)}
@@ -276,7 +276,7 @@ input:focus{outline:none}
 .f-value.ph{color:var(--placeholder)}
 .bank-badge{display:flex;align-items:center;justify-content:center;width:20px;height:20px;flex-shrink:0;border-radius:50%;color:var(--ink);font-size:8px;font-weight:700;letter-spacing:.02em}
 .f-ok{display:none;line-height:0}
-.is-valid .f-box{border-color:#22C55E}
+.is-valid .f-box{border-color:var(--success)}
 .is-valid .f-ok{display:flex}
 .summary{display:flex;flex-direction:column;gap:10px;margin:16px 0 0;padding:16px;background:var(--raised);border-radius:8px;font-size:14px;line-height:21px}
 .summary div{display:flex;justify-content:space-between;gap:16px}
@@ -369,7 +369,7 @@ var BANKS={
 function banks(){return BANKS[S.country]||BANKS.KH;}
 function bankBy(id){var b=banks();for(var i=0;i<b.length;i++) if(b[i][0]===id) return b[i]; return null;}
 function badge(b){return '<span class="bank-badge" style="background:'+b[2]+'" aria-hidden="true">'+b[0].slice(0,2)+'</span>';}
-var OKG='<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#22C55E"/><path d="m7 12.5 3.2 3.2L17 9" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var OKG='<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#0BB212"/><path d="m7 12.5 3.2 3.2L17 9" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 var COPY='<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2.5" fill="#9C9A9E"/><path d="M5.5 16H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v.5" fill="none" stroke="#9C9A9E" stroke-width="2"/></svg>';
 var BI={
   login:'<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12h9.5M8 9l3 3-3 3"/><path d="M11 5.5V4l6.5-1.5v19L11 20v-1.5"/><path d="M17.5 3.5h3v17h-3"/></svg>',
@@ -386,7 +386,7 @@ var CHEV = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" f
 var ERR = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill="currentColor"/><path d="M7.2 3.8h1.6v5.2H7.2zM7.2 10.6h1.6v1.6H7.2z" fill="#121212"/></svg>';
 var OKI = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="m7 12.5 3.2 3.2L17 9" fill="none" stroke="#121212" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 var BADI = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill="currentColor"/><path d="M7.2 3.8h1.6v5.2H7.2zM7.2 10.6h1.6v1.6H7.2z" fill="#121212"/></svg>';
-var CHECKG = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+var CHECKG = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0BB212" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
 var app = document.getElementById('app');
 
 /* ---------- helpers ---------- */
