@@ -197,8 +197,8 @@ input:focus{outline:none}
 /* PIN – single field */
 .pin-f{margin-top:16px}
 .pin-mid{position:relative;flex:1;align-self:stretch;display:flex;align-items:center}
-.pin-slots{display:flex;gap:6px}
-.pin-slot{width:14px;min-height:20px;text-align:center;border-bottom:1.5px solid var(--placeholder);font-size:14px;line-height:20px}
+.pin-slots{display:flex;justify-content:space-between;gap:10px;width:100%;max-width:300px}
+.pin-slot{width:24px;min-height:26px;text-align:center;border-bottom:2px solid var(--placeholder);font-size:18px;line-height:24px}
 .pin-slot.filled{border-color:var(--ink)}
 .pin-slot.active{border-color:var(--lime)}
 .pin-plain{font-size:14px;letter-spacing:.2em}
@@ -411,7 +411,11 @@ body.gj .btn-row .btn-primary{margin-top:0}
 .modal-rows dt{color:var(--muted)}
 .modal-rows dd{margin:0;color:var(--ink);word-break:break-all}
 .modal .btn-row{margin-top:28px}
-.modal-bg .modal .btn-primary,.modal-bg .modal .btn-grey{height:48px;margin-top:0;border-radius:6px;font-size:16px;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+.modal .notes{margin-top:18px}
+.modal-one{display:flex;justify-content:center;margin-top:24px}
+.modal-bg .modal-one .btn-primary{width:200px}
+.modal-title{text-transform:none}
+.modal-bg .modal .btn-primary,.modal-bg .modal .btn-grey{display:flex;height:48px;margin-top:0;border-radius:6px;font-size:16px;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
 body.light .modal-bg{background:rgba(0,0,0,.4)}
 @media (max-width:767px){.modal{padding:24px 20px}.modal-rows{font-size:14px}}
 body.gj .foot{font-size:16px;font-weight:500}
@@ -536,7 +540,7 @@ function langHTML(){
 function pageTitle(){
   if(S.tab==='login') return 'Login';
   if(S.tab==='forgot') return 'Forgot Password';
-  return ['',GJ?'Register':'Sign Up','Bank Details',GJ?'Bank Details':'Confirm Membership','Welcome'][S.suStep]||'Sign Up';
+  return ['',GJ?'Register':'Sign Up','Bank Details',GJ?'Bank Details':'Confirm Membership',GJ?'Bank Details':'Welcome'][S.suStep]||'Sign Up';
 }
 function bannerHTML(){
   if(!(GJ&&CFG.banner)) return '';
@@ -686,7 +690,7 @@ function signupHTML(){
   var st=S.suStep;
   if(st===2) return bankHTML();
   if(st===3) return GJ?bankHTML(true)+confirmModal():confirmHTML();
-  if(st===4) return doneHTML();
+  if(st===4) return GJ?bankHTML(true)+doneModal():doneHTML();
   var h=head(GJ?'Register':'Sign Up');
   h+=socialHTML('top');
   h+='<div class="mt12">'+field({kind:'text',icon:'user',label:'Username',ph:'Please Enter Username *',phOut:'Enter your username',bind:'su_user'})+'</div>';
@@ -721,6 +725,15 @@ function confirmModal(){
     '<dl class="modal-rows">'+rows.map(function(r){return '<div><dt>'+r[0]+':</dt><dd>'+esc(r[1]||'—')+'</dd></div>';}).join('')+'</dl>'+
     '<div class="btn-row"><button type="button" class="btn-grey" data-act="suBack"'+(S.loading?' disabled':'')+'>'+bi('cancel')+'<span>Cancel</span></button>'+
     (S.loading?'<button type="submit" class="btn-primary ready loading" disabled aria-busy="true"><span class="spin" aria-hidden="true"></span>Confirming…</button>':'<button type="submit" class="btn-primary ready" id="cta">'+bi('check')+'<span>Confirm</span></button>')+'</div></div></div>';
+}
+function doneModal(){
+  var secret=S.auth==='pin'?S.su_pin:S.su_pwd, secretLabel=S.auth==='pin'?'PIN':'Password';
+  return '<div class="modal-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="dtitle"><h2 id="dtitle" class="modal-title">Successfully Signed Up!</h2>'+
+    '<ol class="notes">'+'<li>Please keep your username and '+secretLabel.toLowerCase()+' safe. We recommend taking a screenshot for your records.</li><li>You can log in to your account with your username and '+secretLabel.toLowerCase()+'.</li></ol>'+
+    '<div class="creds">'+[['Username',S.su_user],[secretLabel,secret]].map(function(r){
+      return '<div class="cred"><span class="cred-k">'+r[0]+':</span><span class="cred-v">'+esc(r[1]||'—')+'</span><button type="button" class="icon-btn" data-act="copy" data-v="'+esc(r[1]||'')+'" aria-label="Copy '+r[0]+'">'+COPY+'</button></div>';
+    }).join('')+'</div>'+
+    '<div class="modal-one"><button type="button" class="btn-primary ready" data-act="suDone">'+bi('check')+'<span>Confirm</span></button></div></div></div>';
 }
 function maskName(){var b=bankBy(S.su_bank);return b?b[1]:'—';}
 function confirmHTML(){
