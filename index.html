@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login & Sign Up prototype</title>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#26262A;color:#EDEDF0;font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+body{display:flex;flex-direction:column}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:2px solid #84CC16;outline-offset:2px}
+.tb{flex-shrink:0;display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:10px 16px;background:#18181B;border-bottom:1px solid #333}
+.tb h1{margin:0 6px 0 0;font-size:14px;font-weight:600;white-space:nowrap}
+.seg{display:inline-flex;padding:2px;background:#27272A;border:1px solid #3F3F46;border-radius:8px}
+.seg button{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:0;border-radius:6px;background:transparent;color:#A1A1AA;cursor:pointer;white-space:nowrap}
+.seg button:hover{color:#FAFAFA}
+.seg button.on{background:#FAFAFA;color:#18181B;font-weight:600}
+.seg button svg{flex-shrink:0}
+.spacer{flex:1}
+.btn{height:32px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;background:#27272A;border:1px solid #3F3F46;border-radius:8px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#3F3F46}
+.btn[hidden]{display:none}
+.btn.primary{background:#047857;border-color:#047857;color:#fff}
+.btn.primary:hover{background:#05966b}
+.steps{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 16px;background:#1F1F23;border-bottom:1px solid #333;overflow-x:auto}
+.steps[hidden]{display:none}
+.steps .lbl{margin-right:6px;color:#A1A1AA;white-space:nowrap}
+.step{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 12px 0 6px;border:1px solid #3F3F46;border-radius:99px;background:#27272A;color:#D4D4D8;cursor:pointer;white-space:nowrap}
+.step b{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#3F3F46;font-size:11px}
+.step.on{border-color:#84CC16;color:#fff}
+.step.on b{background:#84CC16;color:#18181B}
+.step.done b{background:#047857;color:#fff}
+.arrow{color:#52525B}
+.main{flex:1;display:flex;min-height:0}
+.stage{flex:1;min-width:0;overflow:auto;padding:24px;display:flex;justify-content:center;align-items:flex-start}
+.scaler{position:relative;flex-shrink:0;margin-top:16px;box-shadow:0 0 0 1px #3F3F46,0 12px 40px rgba(0,0,0,.45)}
+.scaler iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;background:#000}
+.meta{position:absolute;left:0;top:-20px;font-size:11px;color:#A1A1AA;white-space:nowrap}
+.side{width:380px;flex-shrink:0;display:flex;flex-direction:column;background:#18181B;border-left:1px solid #333}
+.side[hidden]{display:none}
+.side-head{padding:14px 16px 12px;border-bottom:1px solid #2A2A2E}
+.side-head h2{margin:0 0 4px;font-size:14px;font-weight:600}
+.side-head p{margin:0 0 10px;color:#A1A1AA;font-size:12px}
+.presets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.preset{padding:8px 10px;border:1px solid #3F3F46;border-radius:8px;background:#27272A;text-align:left;cursor:pointer}
+.preset:hover{border-color:#71717A}
+.preset.on{border-color:#84CC16;background:rgba(132,204,22,.08)}
+.preset strong{display:block;font-size:13px}
+.preset span{display:block;color:#A1A1AA;font-size:11px}
+.side-body{flex:1;overflow:auto;padding:4px 0 16px}
+details{border-bottom:1px solid #2A2A2E}
+summary{display:flex;align-items:center;gap:8px;padding:12px 16px;list-style:none;cursor:pointer;font-weight:600}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid #71717A;border-bottom:2px solid #71717A;transform:rotate(45deg);transition:transform .15s}
+details[open] summary::after{transform:rotate(-135deg)}
+.badge{min-width:18px;height:18px;padding:0 6px;border-radius:9px;background:#84CC16;color:#18181B;font-size:11px;font-weight:700;line-height:18px;text-align:center}
+.opts{padding:0 16px 12px}
+.opt{position:relative;display:flex;align-items:center;gap:10px;padding:6px 0 6px 10px;border-left:2px solid transparent}
+.opt.changed{border-left-color:#84CC16}
+.opt-top{flex:1;display:flex;align-items:center;gap:4px;min-width:0}
+.opt-name{color:#F4F4F5}
+.info{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#3F3F46;color:#D4D4D8;font-size:10px;font-weight:700;cursor:help;flex-shrink:0}
+.hint-bar{margin:0 16px 8px;padding:8px 10px;border-radius:8px;background:rgba(132,204,22,.1);color:#D9F99D;font-size:12px}
+.hint-bar[hidden]{display:none}
+.undo{padding:0 2px;border:0;background:none;color:#84CC16;font-size:13px;cursor:pointer}
+.opt .seg{display:flex;width:196px;flex-shrink:0}
+.opt .seg button{flex:1;justify-content:center;height:28px;padding:0 6px;font-size:12px}
+.site-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#84CC16}
+.legend{display:flex;align-items:center;gap:6px;padding:10px 16px;color:#8B8B94;font-size:11px}
+.status{display:inline-flex;align-items:center;gap:6px;color:#A1A1AA;white-space:nowrap}
+@media (max-width:900px){
+  .side{position:fixed;left:0;right:0;bottom:0;z-index:20;width:auto;max-height:70vh;border-left:0;border-top:1px solid #3F3F46;border-radius:14px 14px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.5)}
+}
+</style>
+</head>
+<body>
+<header class="tb">
+<h1>Login / Sign Up · design prototype</h1>
+<div class="seg" id="pageSeg" role="group" aria-label="Page"></div>
+<div class="seg" id="widthSeg" role="group" aria-label="Screen size"></div>
+<span class="spacer"></span>
+<span class="status" id="count"></span>
+<button type="button" class="btn" id="copy" hidden>Copy link</button>
+<button type="button" class="btn" id="open" hidden>Open ↗</button>
+<button type="button" class="btn" id="dl" hidden>Download</button>
+<button type="button" class="btn primary" id="varBtn" aria-expanded="true" aria-controls="panel">Hide options</button>
+</header>
+<nav class="steps" id="steps" aria-label="Steps" hidden></nav>
+<div class="main"><main class="stage" id="stage"><div class="scaler" id="scaler"><span class="meta" id="meta"></span><iframe id="pv" title="Preview"></iframe></div></main>
+<aside class="side" id="panel" aria-label="Options"></aside></div>
+
+<script type="text/plain" id="pageSrc"><!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IBSKUSD | Login</title>
+<style>
+/* ===== IBSKUSD auth page – tokens taken from the live /en-kh/login page ===== */
+:root{
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text",sfpro-en,"Helvetica Neue",Arial,sans-serif;
+  --bg-desktop:#000000; --bg-mobile:#121212;
+  --field-bg:#2B2B31; --field-border:#0E0E0F; --field-focus:#047857; --placeholder:#505050;
+  --pill-bg:#222121; --grad:linear-gradient(rgb(132,204,22),rgb(4,120,87));
+  --green:#047857; --error:#FF5A5F;
+  --ink:#FFFFFF; --muted-2:rgba(255,255,255,.5); --popover:#1E1E22; --divider:#3A3A40; --raised:#1C1C1F; --btn-grey:#4A4A50; --hover:#2B2B31; --lime:#84CC16; --toggle-border:#5F5F5F; --muted:#C6C6C6; --required:#FF0000;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;background:var(--bg-desktop);color:var(--ink);font-family:var(--font)}
+button{font-family:var(--font)}
+button:focus-visible,a:focus-visible{outline:2px solid #FFFFFF;outline-offset:2px}
+input:focus{outline:none}
+
+.page{min-height:100vh;padding:40px 32px 32px}
+.page-inner{position:relative;max-width:960px;margin:0 auto;padding:0 16px;display:flex;flex-direction:column;align-items:center}
+.close{position:absolute;right:16px;top:23px;line-height:0}
+.logo{margin-top:16px;line-height:0}
+.logo img{display:block;width:150px;height:60px;object-fit:contain}
+.logo{text-decoration:none}
+.logo-ph{display:flex;align-items:center;justify-content:center;width:150px;height:60px;border:1.5px dashed #9C9A9E;border-radius:8px;color:#9C9A9E;font-size:14px;font-weight:600;letter-spacing:.2em}
+.proto-tag{position:fixed;left:12px;bottom:12px;z-index:60;padding:4px 10px;border-radius:99px;background:rgba(128,128,128,.15);color:#9C9A9E;font-size:11px;letter-spacing:.04em;pointer-events:none}
+.auth{display:flex;flex-direction:column;width:100%;max-width:450px;margin-top:20px;padding-bottom:16px}
+.title{padding:20px 0 10px;text-align:center;font-size:20px;font-weight:700;line-height:30px}
+
+/* segmented pill (method tabs / login-signup tabs) */
+.seg{display:grid;width:360px;margin:12px auto 0;padding:4px;background:var(--pill-bg);border-radius:30px}
+.seg-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.seg-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.seg-btn{position:relative;display:flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:6.4px 8.64px;border:0;border-radius:30px;background:transparent;color:var(--ink);font-size:14px;font-weight:600;line-height:21px;cursor:pointer}
+.seg-btn.on{background:var(--grad)}
+.badge{position:absolute;top:-10px;right:6px;padding:0 6px;border-radius:99px;background:var(--required);font-size:10px;font-weight:600;line-height:16px}
+.switch-link{display:flex;align-items:center;gap:6px;margin:8px auto 0;min-height:36px;padding:0 8px;background:none;border:0;color:var(--ink);font-size:14px;font-weight:600;cursor:pointer}
+
+/* field */
+.f{display:flex;flex-direction:column}
+.mt12{margin-top:12px}.mt16{margin-top:16px}
+.f-label{margin-bottom:8px;font-size:14px;line-height:21px;color:var(--muted)}
+.req{color:var(--required)}
+.f-box{position:relative;display:flex;align-items:center;gap:8px;height:44px;padding:0 12px 0 14px;background:var(--field-bg);border:1px solid var(--field-border);border-radius:6px}
+.f-box.no-icon{padding-left:12px}
+.f-box:focus-within{border-color:var(--field-focus)}
+.f-ico{position:relative;display:block;margin-right:4px}
+.f-ico svg{display:block}
+.f-ico .star{position:absolute;left:15px;top:-6px;color:var(--required);font-size:14px;line-height:14px}
+.f-ico.is-flag .star{left:20px;top:-4px}
+.flag{display:block;width:20px;height:20px;border-radius:50%;overflow:hidden}
+.flag svg{display:block}
+.f-code{margin-right:4px}
+.f-input{flex:1;min-width:0;height:100%;padding:0;background:transparent;border:0;color:var(--ink);font:400 14px var(--font)}
+.f-input::placeholder{color:var(--placeholder)}
+.f-input.is-digits::placeholder{letter-spacing:1px}
+.f-split{display:flex;gap:10px}
+.f-split .f-box{flex:1;min-width:0}
+.f-codebox{display:flex;align-items:center;gap:8px;height:44px;flex-shrink:0;padding:0 10px;background:var(--field-bg);border:1px solid var(--field-border);border-radius:6px;color:var(--ink);font-size:14px;cursor:pointer}
+.f-codebox .f-ico{margin-right:0}
+.f-code{display:flex;align-items:center;gap:8px;padding:0;background:none;border:0;color:var(--ink);font-size:14px;cursor:pointer}
+.f-div{width:1px;height:20px;background:var(--toggle-border)}
+.f-value{flex:1;font-size:14px}
+.f-tools{display:flex;align-items:center;gap:8px}
+.f-box:has(.f-btn){padding-right:6px}
+.f-btn{height:32px;padding:0 12px;border:0;border-radius:4px;background:var(--grad);color:var(--ink);font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}
+.f-btn:disabled{background:var(--divider);color:#9C9A9E;cursor:default}
+.foot.small{margin-top:12px;font-size:13px}
+.foot.small .link{font-size:13px;font-weight:400}
+.btn-primary.mt-btn{margin-top:12px}
+.sub{margin:4px 0 0;text-align:center;font-size:14px;line-height:21px;color:var(--muted)}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:12px}
+.steps i{height:4px;border-radius:2px;background:#3A3A40}
+.steps i.on{background:var(--grad)}
+.done{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:24px;text-align:center}
+.done-ico{display:flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:50%;background:var(--grad)}
+.done h2{margin:4px 0 0;font-size:18px;font-weight:700;line-height:27px}
+.done p{margin:0;font-size:14px;line-height:21px;color:var(--muted)}
+.icon-btn{display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;background:none;border:0;cursor:pointer}
+
+/* password / PIN toggle */
+.toggle{align-self:flex-end;display:flex;gap:2px;margin-top:16px;padding:2px;border:1px solid var(--toggle-border);border-radius:99px}
+.toggle-btn{height:26px;padding:0 12px;border:0;border-radius:99px;background:transparent;color:var(--muted-2);font-size:12px;line-height:26px;cursor:pointer}
+.toggle-btn.on{background:var(--green);color:var(--ink)}
+
+/* PIN – 6 boxes */
+.pin-label{margin-top:16px;font-size:14px;line-height:21px}
+.pin-wrap{position:relative;display:flex;align-items:center;justify-content:center;gap:12px;margin-top:8px}
+.pin-wrap.full .pin-boxes{flex:1;display:grid;grid-template-columns:repeat(6,minmax(0,1fr))}
+.pin-wrap.full .pin-box{width:auto}
+.pin-boxes{position:relative;display:flex;gap:8px}
+.pin-box{display:flex;align-items:center;justify-content:center;width:45px;height:50px;background:var(--field-bg);border:1px solid var(--field-border);border-radius:5px;font-size:16px}
+.pin-box.active{border-color:var(--field-focus)}
+.pin-input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;font-size:16px;cursor:text}
+.pin-eye{display:flex}
+/* PIN – single field */
+.pin-f{margin-top:16px}
+.pin-mid{position:relative;flex:1;align-self:stretch;display:flex;align-items:center}
+.pin-slots{display:flex;gap:6px}
+.pin-slot{width:14px;min-height:20px;text-align:center;border-bottom:1.5px solid var(--placeholder);font-size:14px;line-height:20px}
+.pin-slot.filled{border-color:var(--ink)}
+.pin-slot.active{border-color:var(--lime)}
+.pin-plain{font-size:14px;letter-spacing:.2em}
+.pin-plain.empty{color:var(--placeholder);letter-spacing:0}
+
+/* remember / forgot / terms */
+.row{display:flex;align-items:center;justify-content:space-between;margin-top:20px;font-size:14px;line-height:21px}
+.check-btn{display:flex;align-items:center;gap:7px;padding:0;background:none;border:0;color:var(--muted);font-size:14px;line-height:21px;text-align:left;cursor:pointer}
+.check{display:flex;align-items:center;justify-content:center;width:16px;height:16px;flex-shrink:0;border-radius:100%;border:1px solid var(--toggle-border)}
+.check.on{background:var(--green);border-color:var(--green)}
+.plain-btn{padding:0;background:none;border:0;color:var(--ink);font-size:14px;line-height:21px;cursor:pointer}
+.terms{align-items:flex-start;margin-top:16px}
+.terms .check{margin-top:2px}
+.terms u{color:var(--ink)}
+.ref-toggle{display:flex;align-items:center;gap:8px;margin-top:16px;padding:0;background:none;border:0;color:var(--muted);font-size:14px;line-height:21px;cursor:pointer}
+.ref-toggle svg,.tri{transition:transform .15s ease}
+.tri{display:flex}
+.ref-toggle.open svg,.tri.up{transform:rotate(180deg)}
+
+/* CTA + footer */
+.btn-primary{display:block;width:100%;height:45px;margin-top:16px;border:0;border-radius:6px;background:var(--grad);color:var(--ink);font-size:18px;font-weight:600;line-height:27px;letter-spacing:1.2px;cursor:pointer;opacity:.6}
+.btn-primary.ready{opacity:1}
+.btn-primary,.btn-grey{display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-primary svg,.btn-grey svg{flex-shrink:0}
+.btn-upper .btn-primary,.btn-upper .btn-grey{text-transform:uppercase}
+.foot{display:flex;justify-content:center;gap:8px;margin-top:16px;font-size:14px;font-weight:700;line-height:21px}
+.link{padding:0;background:none;border:0;color:var(--green);font-size:14px;font-weight:700;line-height:21px;text-decoration:underline;cursor:pointer}
+
+/* ===== states & interactions ===== */
+.f{position:relative}
+.f-err{display:flex;align-items:center;gap:6px;margin-top:6px;color:var(--error);font-size:12px;line-height:18px}
+.f-err svg{flex-shrink:0}
+.has-err .f-box,.has-err .f-codebox,.has-err .pin-box{border-color:var(--error)}
+.has-err .pin-slot{border-color:var(--error)}
+.terms-wrap.has-err .check{border-color:var(--error)}
+@keyframes shake{0%,100%{transform:none}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.shake .pin-boxes,.shake .f-box{animation:shake .35s ease}
+.btn-primary.loading{display:flex;align-items:center;justify-content:center;gap:10px;cursor:wait}
+.spin{width:18px;height:18px;border:2px solid rgba(255,255,255,.35);border-top-color:var(--ink);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.f-code,.f-codebox{cursor:default}
+[data-act="cc"]{cursor:pointer}
+.cc-pop{position:absolute;left:0;top:calc(100% + 6px);z-index:20;width:100%;max-width:320px;padding:6px;background:var(--popover);border:1px solid var(--divider);border-radius:8px;box-shadow:0 12px 32px rgba(0,0,0,.5)}
+.cc-search{width:100%;height:36px;margin-bottom:6px;padding:0 10px;background:var(--field-bg);border:1px solid var(--divider);border-radius:6px;color:var(--ink);font:400 14px var(--font)}
+.cc-search::placeholder{color:#7A7A80}
+.cc-search:focus{border-color:var(--field-focus)}
+.cc-list{max-height:220px;overflow:auto}
+.cc-item{display:flex;align-items:center;gap:10px;width:100%;height:40px;padding:0 10px;border:0;border-radius:6px;background:none;color:var(--ink);font-size:14px;text-align:left;cursor:pointer}
+.cc-item[hidden]{display:none}
+.cc-item:hover,.cc-item:focus-visible{background:var(--hover);outline:none}
+.cc-item.on{background:rgba(4,120,87,.22)}
+.cc-name{flex:1}
+.cc-dial{color:var(--muted)}
+.cc-empty{padding:10px;color:var(--muted);font-size:13px}
+.tip-pop{position:absolute;right:0;top:calc(100% + 8px);z-index:20;width:240px;padding:10px 12px;background:#F4F4F5;color:#18181B;border-radius:8px;font-size:12px;line-height:18px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.tip-pop::before{content:"";position:absolute;right:12px;top:-5px;width:10px;height:10px;background:#F4F4F5;transform:rotate(45deg)}
+.rules{display:none;margin-top:8px}
+.rules.show,.f:focus-within .rules{display:block}
+.meter{display:flex;align-items:center;gap:4px}
+.meter i{flex:1;height:4px;border-radius:2px;background:#3A3A40}
+.meter-t{min-width:60px;text-align:right;font-size:12px;color:var(--muted)}
+.rules[data-lvl="1"] .meter i:nth-child(1){background:var(--error)}
+.rules[data-lvl="2"] .meter i:nth-child(-n+2){background:#F5A524}
+.rules[data-lvl="3"] .meter i{background:#22C55E}
+.rules ul{display:flex;flex-wrap:wrap;gap:4px 14px;margin:8px 0 0;padding:0;list-style:none;font-size:12px;line-height:18px;color:#8A8A90}
+.rules li::before{content:"○";margin-right:5px}
+.rules li.ok{color:#22C55E}
+.rules li.ok::before{content:"✓"}
+.toasts{position:fixed;left:50%;top:16px;z-index:50;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;width:max-content;max-width:calc(100% - 32px)}
+.toast{display:flex;align-items:center;gap:10px;padding:10px 8px 10px 14px;background:var(--popover);border:1px solid var(--divider);border-radius:8px;box-shadow:0 12px 32px rgba(0,0,0,.5);font-size:14px;line-height:20px;animation:tin .2s ease}
+.toast .t-ico{display:flex}
+.toast.success .t-ico{color:#22C55E}
+.toast.error .t-ico{color:var(--error)}
+.toast button{width:28px;height:28px;border:0;border-radius:6px;background:none;color:#A1A1AA;font-size:18px;cursor:pointer}
+.toast button:hover{background:var(--hover);color:var(--ink)}
+@keyframes tin{from{opacity:0;transform:translateY(-8px)}}
+.pin-input:focus-visible{outline:none}
+.pin-boxes:focus-within{outline:2px solid transparent}
+.f-select{width:100%;color:var(--ink);font:400 14px var(--font);text-align:left;cursor:pointer}
+.f-value.ph{color:var(--placeholder)}
+.bank-badge{display:flex;align-items:center;justify-content:center;width:20px;height:20px;flex-shrink:0;border-radius:50%;color:var(--ink);font-size:8px;font-weight:700;letter-spacing:.02em}
+.f-ok{display:none;line-height:0}
+.is-valid .f-box{border-color:#22C55E}
+.is-valid .f-ok{display:flex}
+.summary{display:flex;flex-direction:column;gap:10px;margin:16px 0 0;padding:16px;background:var(--raised);border-radius:8px;font-size:14px;line-height:21px}
+.summary div{display:flex;justify-content:space-between;gap:16px}
+.summary dt{color:var(--muted)}
+.summary dd{margin:0;font-weight:600;text-align:right;word-break:break-all}
+.btn-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:24px}
+.btn-row .btn-primary{margin-top:0}
+.btn-grey{height:45px;border:0;border-radius:6px;background:var(--btn-grey);color:var(--ink);font-size:18px;font-weight:600;letter-spacing:1.2px;cursor:pointer}
+.btn-grey:hover{filter:brightness(1.08)}
+.done-title{padding:20px 0 10px;text-align:center;font-size:20px;font-weight:700;line-height:30px;text-transform:uppercase}
+.notes{margin:8px 0 0;padding:14px 16px 14px 34px;background:var(--raised);border-radius:8px;font-size:14px;line-height:21px;color:var(--ink)}
+.notes li+li{margin-top:6px}
+.creds{margin-top:16px;padding:0 16px;border:1px solid var(--divider);border-radius:8px}
+.cred{display:flex;align-items:center;gap:8px;height:56px;font-size:14px}
+.cred+.cred{border-top:1px solid var(--divider)}
+.cred-k{flex:1;color:var(--muted)}
+.cred-v{font-weight:600}
+.btn-primary.btn-narrow{width:176px;align-self:center;margin-top:20px}
+.hl{outline:2px dashed var(--lime);outline-offset:6px;border-radius:8px;animation:hl 1.8s ease}
+@keyframes hl{0%,60%{outline-color:var(--lime)}100%{outline-color:transparent}}
+@media (prefers-reduced-motion:reduce){.shake .pin-boxes,.shake .f-box,.toast,.spin{animation:none}}
+
+@media (max-width:767px){
+  html,body{background:var(--bg-mobile)}
+  .page{padding:8px 0 0}
+  .seg{width:100%}
+}
+
+/* ===== Light theme (GHero "Color Behavior Light"; brand colours unchanged) ===== */
+.seg-btn.on,.toggle-btn.on,.btn-primary,.f-btn,.badge,.done-ico,.bank-badge{color:#FFFFFF}
+body.light{
+  --bg-desktop:#FFFFFF; --bg-mobile:#FFFFFF;
+  --ink:#313030; --muted:rgba(49,48,48,.6); --muted-2:rgba(49,48,48,.6); --placeholder:rgba(49,48,48,.6);
+  --field-bg:#FFFFFF; --field-border:#D6D6D6; --pill-bg:#F3F3F3; --toggle-border:#D6D6D6;
+  --popover:#FFFFFF; --divider:#D6D6D6; --raised:#F3F3F3; --btn-grey:#F5F5F5; --hover:#F3F3F3;
+}
+body.light{color:#313030}
+body.light .logo img{filter:invert(1) hue-rotate(180deg)}
+body.light .toast,body.light .cc-pop{box-shadow:0 12px 32px rgba(0,0,0,.12)}
+body.light .tip-pop{background:#313030;color:#FFFFFF}
+body.light .tip-pop::before{background:#313030}
+body.light .f-btn:disabled{color:rgba(49,48,48,.6)}
+body.light svg [fill="#FFFFFF"]{fill:#313030}
+body.light svg [stroke="#FFFFFF"]{stroke:#313030}
+body.light svg [fill="#2B2B31"]{fill:#FFFFFF}
+body.light svg [stroke="#2B2B31"]{stroke:#FFFFFF}
+body.light .flag svg [fill="#FFFFFF"],body.light .seg-btn.on svg [fill="#FFFFFF"],body.light .check.on svg [stroke="#FFFFFF"],body.light .btn-primary svg [fill="#FFFFFF"],body.light .btn-primary svg [stroke="#FFFFFF"],body.light .done-ico svg [stroke="#FFFFFF"],body.light .btn-grey svg [fill="#FFFFFF"],body.light .badge svg [fill="#FFFFFF"]{fill:#FFFFFF;stroke:none}
+body.light .check.on svg [stroke="#FFFFFF"],body.light .btn-primary svg [stroke="#FFFFFF"],body.light .done-ico svg [stroke="#FFFFFF"]{stroke:#FFFFFF;fill:none}
+body.light .btn-grey svg circle[fill="#FFFFFF"]{fill:#313030}
+body.light .btn-grey svg path[stroke="#4A4A50"]{stroke:#F5F5F5}
+body.light .toast .t-ico svg path[fill="#121212"],body.light .f-err svg path[fill="#121212"]{fill:#FFFFFF}
+</style>
+</head>
+<body>
+<div class="page"><div class="page-inner">
+<a href="#" class="close" aria-label="Close"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 1024 1024" style="display: block; flex-shrink: 0"><path d="M1024 173L838 -13L512 313L186 -13L0 173L326 499L0 825L186 1011L512 685L838 1011L1024 825L698 499L1024 173Z" fill="#FFFFFF"></path></svg></a>
+<a href="#" class="logo" aria-label="Home"><span class="logo-ph" aria-label="Logo placeholder">LOGO</span></a>
+<div class="proto-tag">Design prototype · no data is sent</div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<form class="auth" id="app" novalidate></form>
+</div></div>
+<script>
+var CFG = Object.assign({page:'login',topTabs:false,accountSwitch:'pill',showIcon:true,labelOutside:false,codeDropdown:false,phoneLayout:'split',defaultAuth:'password',pinStyle:'boxes',showAuthToggle:true,pinEye:true,showTip:true,phoneIcon:'mobile',country:'KH',fpStep:1,suStep:1,showErrors:false,demoResult:'error',walk:false,btnIcon:false,btnCase:'normal',focus:'',theme:'dark'}, /*CFG*/{});
+var FLAGS={
+  KH:'<svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="#032EA1"/><rect y="5" width="20" height="10" fill="#E00025"/><path d="M5 13.4h10v-1.1H5zM6 12.3h8v-1.4H6zM9.2 10.9V7.6l.8-1.6.8 1.6v3.3zM7 10.9V8.8l.6-1 .6 1v2.1zM11.8 10.9V8.8l.6-1 .6 1v2.1z" fill="#FFFFFF"/></svg>',
+  TH:'<svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="#A51931"/><rect y="3.33" width="20" height="13.34" fill="#F4F5F8"/><rect y="6.67" width="20" height="6.66" fill="#2D2A4A"/></svg>',
+  VN:'<svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="#DA251D"/><path d="M10 4.2l1.4 4.2h4.4l-3.6 2.6 1.4 4.2L10 12.6l-3.6 2.6 1.4-4.2-3.6-2.6h4.4z" fill="#FFFF00"/></svg>',
+  MY:'<svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="#FFFFFF"/><path d="M0 0h20v1.43H0zM0 2.86h20v1.43H0zM0 5.71h20v1.43H0zM0 8.57h20v1.43H0zM0 11.43h20v1.43H0zM0 14.29h20v1.43H0zM0 17.14h20v1.43H0z" fill="#CC0001"/><rect width="10" height="10" fill="#010066"/><circle cx="4.6" cy="5" r="3" fill="#FFCC00"/><circle cx="5.5" cy="5" r="2.5" fill="#010066"/><path d="M7.8 3.2l.45 1.3h1.35l-1.1.8.4 1.3-1.1-.8-1.1.8.4-1.3-1.1-.8h1.35z" fill="#FFCC00"/></svg>',
+  ID:'<svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="10" fill="#CE1126"/><rect y="10" width="20" height="10" fill="#FFFFFF"/></svg>',
+  PH:'<svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="10" fill="#0038A8"/><rect y="10" width="20" height="10" fill="#CE1126"/><path d="M0 0l10 10L0 20z" fill="#FFFFFF"/><circle cx="3.6" cy="10" r="1.6" fill="#FCD116"/></svg>'
+};
+var COUNTRIES=[['KH','Cambodia','+855'],['TH','Thailand','+66'],['VN','Vietnam','+84'],['MY','Malaysia','+60'],['ID','Indonesia','+62'],['PH','Philippines','+63']];
+var FOCUS=CFG.focus||'';
+if(CFG.theme==='light') document.body.classList.add('light');
+var S = {tab:CFG.page, method:CFG.accountSwitch==='link'?'mobile':'username', accMode:'username', auth:CFG.defaultAuth, show:false, remember:true, agree:true, refOpen:false,
+  id:'', pwd:'', pin:'', su_user:'', su_phone:'', su_pwd:'', su_pwd2:'', su_pin:'', su_pin2:'', su_ref:'',
+  fpStep:+(CFG.fpStep||1), fp_id:'', fp_code:'', fp_pwd:'', fp_pwd2:'', fp_pin:'', fp_pin2:'',
+  suStep:+(CFG.suStep||1), su_bank:'', su_acc:'', su_name:'',
+  timer:0, err:{}, shake:false, loading:false, country:CFG.country, ccOpen:null, tipOpen:null};
+var IC = {user:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 1024 1024" style="display: block; flex-shrink: 0"><path d="M512 -13Q565 -13 612 7Q658 27 693 62Q728 97 748 144Q768 190 768 243Q768 296 748 343Q728 389 693 424Q658 459 612 479Q565 499 512 499Q459 499 412 479Q366 459 331 424Q296 389 276 343Q256 296 256 243L256 243Q256 190 276 144Q296 97 331 62Q366 27 412 7Q459 -13 512 -13L512 -13ZM512 627Q618 627 711 647Q805 667 874.5 702Q944 737 984 784Q1024 830 1024 883L1024 1011L0 1011L0 883Q0 830 40 784Q80 737 149.5 702Q219 667 313 647Q406 627 512 627Z" fill="#FFFFFF"></path></svg>', mobile:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 1024 1024" style="display: block; flex-shrink: 0"><path d="M745 825L279 825L279 173L745 173L745 825ZM745 -13L279 -13Q241 -13 213.5 14.5Q186 42 186 80L186 918Q186 957 213.5 984Q241 1011 279 1011L745 1011Q783 1011 810.5 984Q838 957 838 918L838 80Q838 42 810.5 14.5Q783 -13 745 -13Z" fill="#FFFFFF"></path></svg>', email:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 1024 1024" style="display: block; flex-shrink: 0"><path d="M512 466L996 182Q975 152 942 133.5Q909 115 870 115L154 115Q114 115 81 133Q48 151 27 181L27 182L512 466ZM563 554Q552 561 538.5 564.5Q525 568 511 568Q497 568 484 564.5Q471 561 460 554L460 555L0 285L0 780Q0 843 45 888Q90 933 154 933L870 933Q934 933 978.5 888Q1023 843 1023 780L1023 285L563 554Z" fill="#FFFFFF"></path></svg>', lock:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 1024 1024" style="display: block; flex-shrink: 0"><path d="M804 371L771 371L771 243Q771 190 751 142Q731 95 695.5 60Q660 25 613 4Q566 -16 512 -16Q458 -16 411 4Q364 25 328.5 60Q293 95 273 142Q253 190 253 243L253 371L220 371Q180 371 151.5 399Q123 427 123 467L123 915Q123 955 151.5 983Q180 1011 220 1011L804 1011Q844 1011 872.5 983Q901 955 901 915L901 467Q901 427 872.5 399Q844 371 804 371ZM339 243Q339 172 389.5 121Q440 70 512 70Q584 70 634.5 121Q685 172 685 243L685 371L339 371L339 243ZM555 701L555 798Q555 816 542.5 828.5Q530 841 512 841Q494 841 481.5 828.5Q469 816 469 798L469 701Q449 690 437.5 670.5Q426 651 426 627Q426 591 451 566Q476 541 512 541Q548 541 573 566Q598 591 598 627Q598 651 586.5 670.5Q575 690 556 700L555 701Z" fill="#FFFFFF"></path></svg>', user14:'<svg aria-hidden="true" width="14" height="14" viewBox="0 0 1024 1024" style="display: block; flex-shrink: 0"><path d="M512 -13Q565 -13 612 7Q658 27 693 62Q728 97 748 144Q768 190 768 243Q768 296 748 343Q728 389 693 424Q658 459 612 479Q565 499 512 499Q459 499 412 479Q366 459 331 424Q296 389 276 343Q256 296 256 243L256 243Q256 190 276 144Q296 97 331 62Q366 27 412 7Q459 -13 512 -13L512 -13ZM512 627Q618 627 711 647Q805 667 874.5 702Q944 737 984 784Q1024 830 1024 883L1024 1011L0 1011L0 883Q0 830 40 784Q80 737 149.5 702Q219 667 313 647Q406 627 512 627Z" fill="#FFFFFF"></path></svg>', mobile14:'<svg aria-hidden="true" width="14" height="14" viewBox="0 0 1024 1024" style="display: block; flex-shrink: 0"><path d="M745 825L279 825L279 173L745 173L745 825ZM745 -13L279 -13Q241 -13 213.5 14.5Q186 42 186 80L186 918Q186 957 213.5 984Q241 1011 279 1011L745 1011Q783 1011 810.5 984Q838 957 838 918L838 80Q838 42 810.5 14.5Q783 -13 745 -13Z" fill="#FFFFFF"></path></svg>', email14:'<svg aria-hidden="true" width="14" height="14" viewBox="0 0 1024 1024" style="display: block; flex-shrink: 0"><path d="M512 466L996 182Q975 152 942 133.5Q909 115 870 115L154 115Q114 115 81 133Q48 151 27 181L27 182L512 466ZM563 554Q552 561 538.5 564.5Q525 568 511 568Q497 568 484 564.5Q471 561 460 554L460 555L0 285L0 780Q0 843 45 888Q90 933 154 933L870 933Q934 933 978.5 888Q1023 843 1023 780L1023 285L563 554Z" fill="#FFFFFF"></path></svg>',
+  coin:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#FFFFFF"/><path d="M14.8 8.6c-.5-.9-1.6-1.4-2.8-1.4-1.6 0-2.8.8-2.8 2.1 0 3 5.8 1.6 5.8 4.6 0 1.3-1.3 2.2-3 2.2-1.3 0-2.5-.6-3-1.6M12 5.5v13" fill="none" stroke="#2B2B31" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  gift:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"><path d="M3 8h18v4H3zM4.5 12h15v9h-15z" fill="#FFFFFF"/><path d="M12 8v13" stroke="#2B2B31" stroke-width="2"/><path d="M12 8C10 4 6.5 4 6.5 6.2S10 8 12 8zm0 0c2-4 5.5-4 5.5-1.8S14 8 12 8z" fill="none" stroke="#FFFFFF" stroke-width="1.8"/></svg>',
+  shield:'<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"><path d="M12 1.5 3 5v6.2c0 5.5 3.8 10.2 9 11.3 5.2-1.1 9-5.8 9-11.3V5z" fill="#FFFFFF"/><path d="m8 12 3 3 5-6" fill="none" stroke="#2B2B31" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
+IC.bank='<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"><path d="M12 1.8 1.5 7v2.2h21V7zM3.5 10.5h3.2v7.5H3.5zM10.4 10.5h3.2v7.5h-3.2zM17.3 10.5h3.2v7.5h-3.2zM1.5 19.3h21v2.9h-21z" fill="#FFFFFF"/></svg>';
+IC.card='<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"><rect x="1.5" y="4.5" width="21" height="15" rx="2.2" fill="#FFFFFF"/><rect x="1.5" y="7.8" width="21" height="3" fill="#2B2B31"/><rect x="4.5" y="14" width="6" height="2" rx="1" fill="#2B2B31"/></svg>';
+var BANKS={
+  KH:[['ABA','ABA Bank','#005D7A'],['ACL','ACLEDA Bank','#1B3F94'],['WNG','Wing Bank','#6E9B1F'],['CAN','Canadia Bank','#C8102E'],['PRB','Prince Bank','#7A1F5C']],
+  TH:[['BBL','Bangkok Bank','#1E4598'],['KBK','Kasikorn Bank','#138F2D'],['SCB','Siam Commercial Bank','#4E2E7F'],['KTB','Krungthai Bank','#0091C8']]
+};
+function banks(){return BANKS[S.country]||BANKS.KH;}
+function bankBy(id){var b=banks();for(var i=0;i<b.length;i++) if(b[i][0]===id) return b[i]; return null;}
+function badge(b){return '<span class="bank-badge" style="background:'+b[2]+'" aria-hidden="true">'+b[0].slice(0,2)+'</span>';}
+var OKG='<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#22C55E"/><path d="m7 12.5 3.2 3.2L17 9" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var COPY='<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2.5" fill="#9C9A9E"/><path d="M5.5 16H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v.5" fill="none" stroke="#9C9A9E" stroke-width="2"/></svg>';
+var BI={
+  login:'<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12h9.5M8 9l3 3-3 3"/><path d="M11 5.5V4l6.5-1.5v19L11 20v-1.5"/><path d="M17.5 3.5h3v17h-3"/></svg>',
+  next:'<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#FFFFFF"/><path d="m10.3 7.5 4.5 4.5-4.5 4.5" fill="none" stroke="#047857" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  check:'<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#FFFFFF"/><path d="m7 12.5 3.2 3.2L17 9" fill="none" stroke="#047857" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  cancel:'<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#FFFFFF"/><path d="m8.5 8.5 7 7m0-7-7 7" fill="none" stroke="#4A4A50" stroke-width="2.4" stroke-linecap="round"/></svg>',
+  signup:'<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3.1-6.5 7-6.5s7 2.5 7 6.5M19 8v6M16 11h6"/></svg>'
+};
+function bi(name){return CFG.btnIcon?BI[name]:'';}
+var EYEON = '<svg aria-hidden="true" width="20" height="13.1" viewBox="0 0 21.842 14.301"><path d="M11.967,1.028c5.46,0,10.921,3.575,10.921,7.151s-6.067,7.151-10.921,7.151S1.046,12.35,1.046,8.178,6.507,1.028,11.967,1.028Zm4.854,7.15a4.855,4.855,0,0,1-9.708,0,4.855,4.855,0,0,1,9.708,0Zm-2.427,0a2.45,2.45,0,0,0,1.2-.311q.014.154.014.311A3.641,3.641,0,1,1,11.967,4.6q.16,0,.317.013a2.34,2.34,0,0,0-.317,1.178A2.406,2.406,0,0,0,14.394,8.178Z" transform="translate(-1.047 -1.027)" fill="#b7b4b4" fill-rule="evenodd"></path></svg>', EYEOFF = '<svg aria-hidden="true" width="20" height="10.4" viewBox="0 0 18 9.353"><path d="M19.777,11.8,18.5,10.332a7.976,7.976,0,0,0,.567-.828.907.907,0,0,0-.315-1.234.9.9,0,0,0-1.232.315c-.027.045-2.6,4.278-6.522,4.278S4.691,8.81,4.529,8.531A.915.915,0,0,0,3.81,8a.9.9,0,0,0-1,.792A2.9,2.9,0,0,0,3.54,10.3L2.235,11.8a.9.9,0,0,0,1.358,1.189l1.133-1.3a12.133,12.133,0,0,0,1.628,1.4L5.24,15.141a.9.9,0,1,0,1.583.865L7.921,14a7.735,7.735,0,0,0,2.195.6v1.846a.9.9,0,1,0,1.8,0V14.609a7.689,7.689,0,0,0,2.186-.621l1.106,2.026a.9.9,0,0,0,.792.468.93.93,0,0,0,.432-.108.91.91,0,0,0,.36-1.225l-1.115-2.044a11.39,11.39,0,0,0,1.655-1.4l1.106,1.27a.879.879,0,0,0,.675.306.906.906,0,0,0,.684-1.495Z" transform="translate(-2.015 -7.994)" fill="#b7b4b4"></path></svg>', TIP = '<svg aria-hidden="true" width="15" height="15" viewBox="0 0 16 16"><path d="M10.8,10.8H9.2V6h1.6m0,8H9.2V12.4h1.6M10,2a8,8,0,1,0,8,8,8,8,0,0,0-8-8Z" transform="translate(-2 -2)" fill="#9c9a9e"></path></svg>', CHECK = '<svg aria-hidden="true" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>';
+var TRI = '<svg aria-hidden="true" width="10" height="6" viewBox="0 0 10 6"><path d="M0 0h10L5 6z" fill="#FFFFFF"/></svg>';
+var SWAP = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9C9A9E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5h15M15 4.5l4 4M20 15.5H5M9 19.5l-4-4"/></svg>';
+var CHEV = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
+var ERR = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill="currentColor"/><path d="M7.2 3.8h1.6v5.2H7.2zM7.2 10.6h1.6v1.6H7.2z" fill="#121212"/></svg>';
+var OKI = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="m7 12.5 3.2 3.2L17 9" fill="none" stroke="#121212" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var BADI = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill="currentColor"/><path d="M7.2 3.8h1.6v5.2H7.2zM7.2 10.6h1.6v1.6H7.2z" fill="#121212"/></svg>';
+var CHECKG = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+var app = document.getElementById('app');
+
+/* ---------- helpers ---------- */
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function dial(){for(var i=0;i<COUNTRIES.length;i++) if(COUNTRIES[i][0]===S.country) return COUNTRIES[i][2]; return '+855';}
+function eye(){return '<button type="button" class="icon-btn" data-act="eye" aria-label="'+(S.show?'Hide':'Show')+' characters" aria-pressed="'+S.show+'">'+(S.show?EYEON:EYEOFF)+'</button>';}
+function ico(name,star){var fl=name==='mobile'&&CFG.phoneIcon==='flag';return CFG.showIcon?'<span class="f-ico'+(fl?' is-flag':'')+'">'+(fl?'<span class="flag">'+FLAGS[S.country]+'</span>':IC[name])+(star?'<span class="star" aria-hidden="true">*</span>':'')+'</span>':'';}
+function lab(text,req){return CFG.labelOutside?'<div class="f-label">'+text+(req?'<span class="req"> *</span>':'')+'</div>':'';}
+function boxCls(){return 'f-box'+(CFG.showIcon?'':' no-icon');}
+function errHTML(k){var m=S.err[k];return m?'<div class="f-err" id="err-'+k+'" role="alert">'+ERR+'<span>'+m+'</span></div>':'';}
+function aria(k){return k&&S.err[k]?' aria-invalid="true" aria-describedby="err-'+k+'"':'';}
+function codeBtn(k,cls,inner){
+  var dd=CFG.codeDropdown;
+  return '<button type="button" class="'+cls+'"'+(dd?' data-act="cc" data-v="'+k+'" aria-haspopup="listbox" aria-expanded="'+(S.ccOpen===k)+'"':' tabindex="-1"')+' aria-label="Country code '+dial()+'">'+inner+(dd?TRI:'')+'</button>';
+}
+function ccPop(k){
+  if(!k||S.ccOpen!==k) return '';
+  if(k==='su_bank') return '<div class="cc-pop" role="dialog" aria-label="Select bank"><input class="cc-search" type="search" placeholder="Search bank" aria-label="Search bank"><div class="cc-list" role="listbox" aria-label="Banks">'+
+    banks().map(function(b){var on=b[0]===S.su_bank;return '<button type="button" role="option" aria-selected="'+on+'" class="cc-item'+(on?' on':'')+'" data-act="bankPick" data-v="'+b[0]+'" data-s="'+b[1].toLowerCase()+'">'+badge(b)+'<span class="cc-name">'+b[1]+'</span>'+(on?CHECKG:'')+'</button>';}).join('')+
+    '<div class="cc-empty" hidden>No bank found</div></div></div>';
+  return '<div class="cc-pop" role="dialog" aria-label="Select country code"><input class="cc-search" type="search" placeholder="Search country or code" aria-label="Search country or code"><div class="cc-list" role="listbox" aria-label="Countries">'+
+    COUNTRIES.map(function(c){var on=c[0]===S.country;return '<button type="button" role="option" aria-selected="'+on+'" class="cc-item'+(on?' on':'')+'" data-act="ccPick" data-v="'+c[0]+'" data-s="'+(c[1]+' '+c[2]+' '+c[0]).toLowerCase()+'"><span class="flag">'+FLAGS[c[0]]+'</span><span class="cc-name">'+c[1]+'</span><span class="cc-dial">'+c[2]+'</span>'+(on?CHECKG:'')+'</button>';}).join('')+
+    '<div class="cc-empty" hidden>No country found</div></div></div>';
+}
+function tipBtn(k){
+  if(!CFG.showTip) return '';
+  var open=S.tipOpen===k, txt=k&&k.indexOf('pin')>=0?'Your PIN must be exactly 6 digits (0–9).':'6–16 characters, with at least 1 letter and 1 number.';
+  return '<button type="button" class="icon-btn tip-btn" data-act="tip" data-v="'+k+'" aria-label="Show rules" aria-expanded="'+open+'">'+TIP+'</button>'+(open?'<div class="tip-pop" role="tooltip">'+txt+'</div>':'');
+}
+function rulesHTML(k){
+  return '<div class="rules" data-rules="'+k+'" aria-live="polite"><div class="meter"><i></i><i></i><i></i><span class="meter-t"></span></div><ul><li data-r="len">6–16 characters</li><li data-r="let">At least 1 letter</li><li data-r="num">At least 1 number</li></ul></div>';
+}
+
+/* o: {kind:text|email|password|phone|select|account|code, icon, label, ph, phOut, bind, required, value, rules} */
+function field(o){
+  var k=o.bind, req=o.required!==false, star=req&&!CFG.labelOutside, ph=CFG.labelOutside?o.phOut:o.ph;
+  var val=k?esc(S[k]):'', bind=k?' data-bind="'+k+'"':'', er=k&&S.err[k], bc=boxCls();
+  function input(t,extra,im){return '<input class="f-input'+(extra||'')+'" type="'+t+'"'+(im?' inputmode="'+im+'"':'')+' placeholder="'+ph+'" aria-label="'+o.label+'" value="'+val+'"'+bind+aria(k)+'>';}
+  function wrap(label,body,after){return '<div class="f'+(er?' has-err':'')+(er&&S.shake?' shake':'')+(o.valid&&!er&&isValid(k)?' is-valid':'')+'"'+(k?' data-f="'+k+'"':'')+'>'+lab(label,req)+body+errHTML(k)+(after||'')+ccPop(k)+'</div>';}
+  if(o.kind==='account'){
+    var mob=S.accMode==='mobile';
+    ph=mob?'_ _ _ _ _ _ _ _ _':(CFG.labelOutside?'Enter your username':'Please Enter Username *');
+    o.label=mob?'Mobile No':'Username';
+    return wrap(o.label,'<div class="'+bc+'">'+ico(mob?'mobile':'user',star)+(mob?codeBtn(k,'f-code',dial()):'')+
+      '<button type="button" class="icon-btn" data-act="accSwitch" aria-label="'+(mob?'Switch to username':'Switch to mobile')+'" title="'+(mob?'Switch to username':'Switch to mobile')+'">'+SWAP+'</button><span class="f-div"></span>'+
+      input(mob?'tel':'text',mob?' is-digits':'',mob?'numeric':'')+'</div>');
+  }
+  if(o.kind==='phone'&&CFG.phoneLayout==='split'){
+    return wrap(o.label,'<div class="f-split">'+codeBtn(k,'f-codebox',ico('mobile',star)+'<span>'+dial()+'</span>')+'<div class="f-box no-icon">'+input('tel','','numeric')+'</div></div>');
+  }
+  var inner;
+  if(o.kind==='phone') inner=ico('mobile',star)+codeBtn(k,'f-code',dial())+input('tel','','numeric');
+  else if(o.kind==='code') inner=ico('shield',star)+input('text','','numeric')+'<button type="button" class="f-btn" id="getcode" data-act="getCode"'+(S.timer?' disabled':'')+'>'+(S.timer?'Resend ('+S.timer+'s)':'Get code')+'</button>';
+  else if(o.kind==='select') inner=ico(o.icon,star)+'<span class="f-value">'+o.value+'</span>'+TRI;
+  else if(o.kind==='bank'){
+    var bk=bankBy(S[k]), open=S.ccOpen===k;
+    return wrap(o.label,'<button type="button" class="'+bc+' f-select" data-act="cc" data-v="'+k+'" aria-haspopup="listbox" aria-expanded="'+open+'"'+aria(k)+'>'+ico('bank',star)+
+      (bk?badge(bk)+'<span class="f-value">'+bk[1]+'</span>':'<span class="f-value ph">'+ph+'</span>')+'<span class="tri'+(open?' up':'')+'">'+TRI+'</span></button>');
+  }
+  else if(o.kind==='password') inner=ico('lock',star)+input(S.show?'text':'password')+'<span class="f-tools">'+eye()+tipBtn(k)+'</span>';
+  else inner=ico(o.icon,star)+input(o.kind==='email'?'email':'text',o.digits?' ':'',o.digits?'numeric':'');
+  if(o.valid) inner+='<span class="f-ok">'+OKG+'</span>';
+  return wrap(o.label,'<div class="'+bc+'">'+inner+'</div>',o.rules?rulesHTML(k):'');
+}
+
+function tabs2(){
+  return '<div class="seg seg-2" role="tablist" aria-label="Login or sign up">'+
+    '<button type="button" role="tab" class="seg-btn'+(S.tab==='login'?' on':'')+'" aria-selected="'+(S.tab==='login')+'" data-act="goLogin">Login</button>'+
+    '<button type="button" role="tab" class="seg-btn'+(S.tab==='signup'?' on':'')+'" aria-selected="'+(S.tab==='signup')+'" data-act="goSignup">Sign Up<span class="badge">New User</span></button></div>';
+}
+function methodsPill(){
+  var m=[['username','Username','user14'],['mobile','Mobile','mobile14'],['email','Email','email14']];
+  return '<div class="seg seg-3" role="tablist" aria-label="Login method">'+m.map(function(x){
+    return '<button type="button" role="tab" class="seg-btn'+(S.method===x[0]?' on':'')+'" aria-selected="'+(S.method===x[0])+'" data-act="method" data-v="'+x[0]+'">'+IC[x[2]]+'<span>'+x[1]+'</span></button>';
+  }).join('')+'</div>';
+}
+function switchLink(){
+  var toUser=S.method!=='username';
+  return '<button type="button" class="switch-link" data-act="cycle">'+(toUser?IC.user14:IC.mobile14)+'<span>Log in with '+(toUser?'username':'mobile')+'</span>'+CHEV+'</button>';
+}
+function accountField(bind){
+  bind=bind||'id';
+  if(CFG.accountSwitch==='inline') return field({kind:'account',bind:bind});
+  if(S.method==='mobile') return field({kind:'phone',label:'Mobile No',ph:'Mobile No *',phOut:'Enter your mobile number',bind:bind});
+  if(S.method==='email') return field({kind:'email',icon:'email',label:'Email',ph:'Email *',phOut:'Enter your email',bind:bind});
+  return field({kind:'text',icon:'user',label:'Username',ph:'Please Enter Username *',phOut:'Enter your username',bind:bind});
+}
+function pinHTML(bind,label){
+  var i, cells='', v=esc(S[bind]), er=S.err[bind], cls=(er?' has-err':'')+(er&&S.shake?' shake':'');
+  var inp='<input class="pin-input" data-bind="'+bind+'" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" aria-label="'+label+', 6 digits" value="'+v+'"'+aria(bind)+'>';
+  if(CFG.pinStyle==='boxes'){
+    for(i=0;i<6;i++) cells+='<div class="pin-box" data-i="'+i+'" aria-hidden="true"></div>';
+    return '<div class="pin-g'+cls+'" data-pin="'+bind+'" data-f="'+bind+'" data-ph="'+label+'"><div class="pin-label">'+label+' <span class="req">*</span></div><div class="pin-wrap full"><div class="pin-boxes">'+cells+inp+'</div>'+
+      (CFG.pinEye?'<span class="pin-eye">'+eye()+'</span>':'')+'</div>'+errHTML(bind)+'</div>';
+  }
+  if(CFG.pinStyle==='underline'){ for(i=0;i<6;i++) cells+='<span class="pin-slot" data-i="'+i+'" aria-hidden="true"></span>'; cells='<span class="pin-slots">'+cells+'</span>'; }
+  else cells='<span class="pin-plain" aria-hidden="true"></span>';
+  return '<div class="f pin-f'+cls+'" data-pin="'+bind+'" data-f="'+bind+'" data-ph="'+label+'">'+lab(label,true)+'<div class="'+boxCls()+'">'+ico('lock',!CFG.labelOutside)+
+    '<span class="pin-mid">'+cells+inp+'</span>'+
+    '<span class="f-tools">'+eye()+tipBtn(bind)+'</span></div>'+errHTML(bind)+'</div>';
+}
+function authToggle(){
+  return CFG.showAuthToggle?'<div class="toggle" role="tablist" aria-label="Password or PIN"><button type="button" role="tab" class="toggle-btn'+(S.auth==='password'?' on':'')+'" aria-selected="'+(S.auth==='password')+'" data-act="auth" data-v="password">Password</button><button type="button" role="tab" class="toggle-btn'+(S.auth==='pin'?' on':'')+'" aria-selected="'+(S.auth==='pin')+'" data-act="auth" data-v="pin">PIN</button></div>':'';
+}
+function checkBtn(act,on,text,cls){
+  return '<button type="button" class="check-btn'+(cls||'')+'" role="checkbox" aria-checked="'+on+'" data-act="'+act+'"'+aria(act)+'><span class="check'+(on?' on':'')+'">'+(on?CHECK:'')+'</span><span>'+text+'</span></button>';
+}
+function cta(text,busy,icon){
+  return S.loading
+    ?'<button type="submit" class="btn-primary ready loading" id="cta" disabled aria-busy="true"><span class="spin" aria-hidden="true"></span><span>'+busy+'</span></button>'
+    :'<button type="submit" class="btn-primary" id="cta">'+bi(icon||'next')+'<span>'+text+'</span></button>';
+}
+
+/* ---------- pages ---------- */
+function loginHTML(){
+  var h=CFG.topTabs?tabs2():'<div class="title">Login</div>';
+  if(CFG.accountSwitch==='pill') h+=methodsPill();
+  if(CFG.accountSwitch==='link') h+=switchLink();
+  h+='<div class="mt12">'+accountField('id')+'</div>';
+  h+=authToggle();
+  h+=S.auth==='password'?'<div class="mt16">'+field({kind:'password',label:'Password',ph:'Password *',phOut:'Enter your password',bind:'pwd'})+'</div>':pinHTML('pin','PIN');
+  h+='<div class="row">'+checkBtn('remember',S.remember,'Remember Me')+'<button type="button" class="plain-btn" data-act="goForgot">Forgot Password?</button></div>';
+  h+=cta('Login','Logging in…','login');
+  if(!CFG.topTabs) h+='<div class="foot"><span>Don’t have an account?</span><button type="button" class="link" data-act="goSignup">Create an account</button></div>';
+  return h;
+}
+function signupHTML(){
+  var st=S.suStep;
+  if(st===2) return bankHTML();
+  if(st===3) return confirmHTML();
+  if(st===4) return doneHTML();
+  var h=CFG.topTabs?tabs2():'<div class="title">Sign Up</div>';
+  h+='<div class="mt12">'+field({kind:'text',icon:'user',label:'Username',ph:'Please Enter Username *',phOut:'Enter your username',bind:'su_user'})+'</div>';
+  h+='<div class="mt16">'+field({kind:'phone',label:'Mobile No',ph:'Mobile No *',phOut:'Enter your mobile number',bind:'su_phone'})+'</div>';
+  h+=authToggle();
+  if(S.auth==='password'){
+    h+='<div class="mt16">'+field({kind:'password',label:'Password',ph:'Password *',phOut:'Enter your password',bind:'su_pwd'})+'</div>';
+    h+='<div class="mt16">'+field({kind:'password',label:'Confirm Password',ph:'Confirm Password *',phOut:'Enter confirm password',bind:'su_pwd2'})+'</div>';
+  } else h+=pinHTML('su_pin','Create your 6-digit PIN')+pinHTML('su_pin2','Confirm PIN');
+  h+='<div class="mt16">'+field({kind:'select',icon:'coin',label:'Currency',value:'USD'})+'</div>';
+  h+='<button type="button" class="ref-toggle'+(S.refOpen?' open':'')+'" aria-expanded="'+S.refOpen+'" data-act="ref">Referral Code (Optional)<svg aria-hidden="true" width="10" height="6" viewBox="0 0 10 6"><path d="M0 0h10L5 6z" fill="#9C9A9E"/></svg></button>';
+  if(S.refOpen){ var lo=CFG.labelOutside; CFG.labelOutside=false; h+='<div style="margin-top:8px">'+field({kind:'text',icon:'gift',label:'Referral Code',ph:'Referral Code',phOut:'Referral Code',bind:'su_ref',required:false})+'</div>'; CFG.labelOutside=lo; }
+  h+='<div class="terms-wrap'+(S.err.agree?' has-err':'')+'" data-f="agree">'+checkBtn('agree',S.agree,'I am over 18 years old and agree to the <u>Terms &amp; Conditions</u>',' terms')+errHTML('agree')+'</div>';
+  h+=cta('Next','Checking…');
+  h+='<div class="foot"><span>Already have an account?</span><button type="button" class="link" data-act="goLogin">Login</button></div>';
+  return h;
+}
+function bankHTML(){
+  var h='<div class="title">Bank Details</div><p class="sub">Add the bank account you will use for deposits and withdrawals.</p>';
+  h+='<div class="mt12">'+field({kind:'bank',label:'Bank',ph:'Select your bank *',phOut:'Select your bank',bind:'su_bank'})+'</div>';
+  h+='<div class="mt16">'+field({kind:'text',icon:'card',label:'Bank Account Number',ph:'Bank Account Number *',phOut:'Enter your account number',bind:'su_acc',digits:true,valid:true})+'</div>';
+  h+='<div class="mt16">'+field({kind:'text',icon:'user',label:'Account Holder Name',ph:'Account Holder Name *',phOut:'Name as shown on your bank account',bind:'su_name',valid:true})+'</div>';
+  h+=cta('Next','Checking…');
+  return h;
+}
+function maskName(){var b=bankBy(S.su_bank);return b?b[1]:'—';}
+function confirmHTML(){
+  var rows=[['Username',S.su_user],['Phone Number',dial()+' '+S.su_phone],['Account Number',S.su_acc],['Bank Name',maskName()],['Account Name',S.su_name]];
+  var h='<div class="title">Confirm Membership</div><p class="sub">Please check your details before confirming.</p>';
+  h+='<dl class="summary">'+rows.map(function(r){return '<div><dt>'+r[0]+':</dt><dd>'+esc(r[1]||'—')+'</dd></div>';}).join('')+'</dl>';
+  h+='<div class="btn-row"><button type="button" class="btn-grey" data-act="suBack"'+(S.loading?' disabled':'')+'>'+bi('cancel')+'<span>Cancel</span></button>'+
+    (S.loading?'<button type="submit" class="btn-primary ready loading" disabled aria-busy="true"><span class="spin" aria-hidden="true"></span>Confirming…</button>':'<button type="submit" class="btn-primary ready" id="cta">'+bi('check')+'<span>Confirm</span></button>')+'</div>';
+  return h;
+}
+function doneHTML(){
+  var secret=S.auth==='pin'?S.su_pin:S.su_pwd, secretLabel=S.auth==='pin'?'PIN':'Password';
+  var h='<div class="done-title">Successfully signed up!</div>';
+  h+='<ol class="notes"><li>Please keep your username and '+secretLabel.toLowerCase()+' safe. We recommend taking a screenshot for your records.</li><li>You can log in to your account with your username and '+secretLabel.toLowerCase()+'.</li></ol>';
+  h+='<div class="creds">'+[['Username',S.su_user],[secretLabel,secret]].map(function(r){
+    return '<div class="cred"><span class="cred-k">'+r[0]+':</span><span class="cred-v">'+esc(r[1]||'—')+'</span><button type="button" class="icon-btn" data-act="copy" data-v="'+esc(r[1]||'')+'" aria-label="Copy '+r[0]+'">'+COPY+'</button></div>';
+  }).join('')+'</div>';
+  h+='<button type="button" class="btn-primary ready btn-narrow" data-act="suDone">'+bi('check')+'<span>Confirm</span></button>';
+  return h;
+}
+function forgotHTML(){
+  var st=S.fpStep, h='<div class="title">Forgot Password</div>';
+  var back='<div class="foot small"><span>Or return to</span><button type="button" class="link" data-act="goLogin">Login</button></div>';
+  if(st===1){
+    if(CFG.accountSwitch==='pill') h+=methodsPill();
+    if(CFG.accountSwitch==='link') h+=switchLink();
+    h+='<div class="mt12">'+accountField('fp_id')+'</div>';
+    h+=back+cta('Next','Sending code…');
+  } else if(st===2){
+    h+='<p class="sub">Enter the verification code sent to your '+via()+', then set a new '+(S.auth==='pin'?'6-digit PIN':'password')+'.</p>';
+    h+='<div class="mt12">'+field({kind:'code',label:'Verification Code',ph:'Verification Code *',phOut:'Enter the 6-digit code',bind:'fp_code'})+'</div>';
+    h+=authToggle();
+    if(S.auth==='password'){
+      h+='<div class="mt16">'+field({kind:'password',label:'New Password',ph:'New Password *',phOut:'Enter new password',bind:'fp_pwd'})+'</div>';
+      h+='<div class="mt16">'+field({kind:'password',label:'Confirm New Password',ph:'Confirm New Password *',phOut:'Enter new password again',bind:'fp_pwd2'})+'</div>';
+    } else h+=pinHTML('fp_pin','New 6-digit PIN')+pinHTML('fp_pin2','Confirm new PIN');
+    h+=back+cta('Reset '+(S.auth==='pin'?'PIN':'Password'),'Saving…','check');
+  } else {
+    h+='<div class="done"><span class="done-ico"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>'+
+      '<h2>'+(S.auth==='pin'?'PIN':'Password')+' updated</h2><p>You can now log in with your new '+(S.auth==='pin'?'PIN':'password')+'.</p></div>';
+    h+='<button type="button" class="btn-primary ready" data-act="goLogin">'+bi('login')+'<span>Back to Login</span></button>';
+  }
+  return h;
+}
+function via(){var m=CFG.accountSwitch==='inline'?S.accMode:S.method;return m==='email'?'email':'mobile number';}
+
+/* ---------- validation ---------- */
+function vPhone(v){ if(!v) return 'Please enter your mobile number'; return /^\d{8,10}$/.test(v.replace(/[\s-]/g,''))?null:'Enter a valid mobile number (8–10 digits)'; }
+function vEmail(v){ if(!v) return 'Please enter your email'; return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)?null:'Enter a valid email address'; }
+function vUser(v){ if(!v) return 'Please enter a username'; return /^[A-Za-z0-9]{4,12}$/.test(v)?null:'Username must be 4–12 letters or numbers'; }
+function vNewPwd(v){ if(!v) return 'Please enter a password'; if(v.length<6||v.length>16) return 'Password must be 6–16 characters'; return (/[A-Za-z]/.test(v)&&/\d/.test(v))?null:'Use at least 1 letter and 1 number'; }
+function vPin(v){ return v.length===6?null:(v?'Enter all 6 digits':'Please enter your 6-digit PIN'); }
+function vMatch(a,b,w){ if(!b) return w==='PIN'?'Please confirm your PIN':'Please confirm your password'; return a===b?null:(w==='PIN'?'PINs do not match':'Passwords do not match'); }
+function vAcc(v){ if(!v) return 'Please enter your account number'; return /^\d{8,20}$/.test(v.replace(/\s/g,''))?null:'Account number must be 8–20 digits'; }
+function vName(v){ if(!v) return 'Please enter the account holder name'; return /^[A-Za-z][A-Za-z .'-]{1,}$/.test(v.trim())?null:'Use letters only, as shown on your bank account'; }
+function isValid(k){ return k==='su_acc'?!vAcc(S[k]):k==='su_name'?!vName(S[k]):false; }
+function idCheck(v){ var m=CFG.accountSwitch==='inline'?S.accMode:S.method; return m==='mobile'?vPhone(v):m==='email'?vEmail(v):(v?null:'Please enter your username'); }
+function validate(){
+  var e={}; function put(k,m){ if(m) e[k]=m; }
+  if(S.tab==='login'){
+    put('id',idCheck(S.id));
+    if(S.auth==='password') put('pwd',S.pwd?null:'Please enter your password'); else put('pin',vPin(S.pin));
+  } else if(S.tab==='signup'&&S.suStep===2){
+    put('su_bank',S.su_bank?null:'Please select your bank');
+    put('su_acc',vAcc(S.su_acc)); put('su_name',vName(S.su_name));
+  } else if(S.tab==='signup'&&S.suStep>2){
+  } else if(S.tab==='signup'){
+    put('su_user',vUser(S.su_user)); put('su_phone',vPhone(S.su_phone));
+    if(S.auth==='password'){ put('su_pwd',vNewPwd(S.su_pwd)); put('su_pwd2',vMatch(S.su_pwd,S.su_pwd2,'password')); }
+    else { put('su_pin',vPin(S.su_pin)); put('su_pin2',vMatch(S.su_pin,S.su_pin2,'PIN')); }
+    if(!S.agree) e.agree='Please accept the Terms & Conditions to continue';
+  } else if(S.fpStep===1){
+    put('fp_id',idCheck(S.fp_id));
+  } else if(S.fpStep===2){
+    put('fp_code',/^\d{6}$/.test(S.fp_code)?null:'Enter the 6-digit verification code');
+    if(S.auth==='password'){ put('fp_pwd',vNewPwd(S.fp_pwd)); put('fp_pwd2',vMatch(S.fp_pwd,S.fp_pwd2,'password')); }
+    else { put('fp_pin',vPin(S.fp_pin)); put('fp_pin2',vMatch(S.fp_pin,S.fp_pin2,'PIN')); }
+  }
+  return e;
+}
+
+/* ---------- toast ---------- */
+function toast(type,msg){
+  var box=document.getElementById('toasts'), t=document.createElement('div');
+  t.className='toast '+type; t.setAttribute('role',type==='error'?'alert':'status');
+  t.innerHTML='<span class="t-ico">'+(type==='error'?BADI:OKI)+'</span><span>'+msg+'</span><button type="button" aria-label="Dismiss">×</button>';
+  t.querySelector('button').onclick=function(){t.remove();};
+  box.appendChild(t); setTimeout(function(){t.remove();},3500);
+}
+
+/* ---------- paint (no full re-render while typing) ---------- */
+function paintBtn(){ var b=document.getElementById('cta'); if(b&&!S.loading) b.classList.toggle('ready',Object.keys(validate()).length===0); }
+function paintPin(){
+  document.querySelectorAll('[data-pin]').forEach(function(g){
+    var v=S[g.dataset.pin]||'', inp=g.querySelector('.pin-input'), ai=document.activeElement===inp?Math.min(v.length,5):-1;
+    g.querySelectorAll('.pin-box,.pin-slot').forEach(function(el){
+      var i=+el.dataset.i, c=v[i]||'';
+      el.textContent=c?(S.show?c:'•'):'';
+      el.classList.toggle('active',i===ai); el.classList.toggle('filled',!!c);
+    });
+    var pl=g.querySelector('.pin-plain');
+    if(pl){ pl.textContent=v?(S.show?v:'•'.repeat(v.length)):(CFG.labelOutside?'Enter 6 digits':g.dataset.ph+' *'); pl.classList.toggle('empty',!v); }
+  });
+  paintBtn();
+}
+function paintRules(k){
+  var r=app.querySelector('[data-rules="'+k+'"]'); if(!r) return;
+  var v=S[k]||'', t={len:v.length>=6&&v.length<=16, let:/[A-Za-z]/.test(v), num:/\d/.test(v)}, n=0;
+  r.querySelectorAll('li').forEach(function(li){var ok=t[li.dataset.r]; li.classList.toggle('ok',ok); if(ok) n++;});
+  r.classList.toggle('show',!!v); r.dataset.lvl=v?Math.max(1,n):0;
+  r.querySelector('.meter-t').textContent=v?['Weak','Weak','Medium','Strong'][n]:'';
+}
+function clearErr(k){
+  if(!S.err[k]) return; delete S.err[k];
+  var f=app.querySelector('[data-f="'+k+'"]'); if(!f) return;
+  f.classList.remove('has-err','shake');
+  var m=f.querySelector('.f-err'); if(m) m.remove();
+  var i=f.querySelector('[aria-invalid]'); if(i){ i.removeAttribute('aria-invalid'); i.removeAttribute('aria-describedby'); }
+}
+function render(){
+  app.classList.toggle('btn-upper',CFG.btnCase==='upper');
+  app.innerHTML=S.tab==='login'?loginHTML():S.tab==='forgot'?forgotHTML():signupHTML();
+  paintPin(); app.querySelectorAll('[data-rules]').forEach(function(r){ paintRules(r.dataset.rules); });
+}
+function startTimer(){
+  S.timer=60;
+  var t=setInterval(function(){ S.timer--; var g=document.getElementById('getcode'); if(g){ g.disabled=!!S.timer; g.textContent=S.timer?'Resend ('+S.timer+'s)':'Get code'; } if(!S.timer) clearInterval(t); },1000);
+}
+function submit(){
+  if(S.loading) return;
+  S.err=CFG.walk?{}:validate(); S.ccOpen=S.tipOpen=null;
+  if(Object.keys(S.err).length){
+    S.shake=true; render(); S.shake=false;
+    var f=app.querySelector('[aria-invalid="true"]'); if(f) f.focus();
+    return;
+  }
+  S.loading=true; render();
+  setTimeout(function(){
+    S.loading=false;
+    if(S.tab==='login'){
+      if(CFG.demoResult==='success') toast('success','Login successful. Welcome back!');
+      else toast('error','Incorrect username or password. Please try again.');
+    } else if(S.tab==='signup'){
+      S.suStep=Math.min(4,S.suStep+1);
+    } else if(S.fpStep===1){
+      S.fpStep=2; startTimer(); toast('success','Verification code sent to your '+via()+'.');
+    } else if(S.fpStep===2){
+      S.fpStep=3;
+    }
+    render();
+  },CFG.walk?500:1200);
+}
+
+/* ---------- events ---------- */
+app.addEventListener('click',function(e){
+  var b=e.target.closest('[data-act]'); if(!b) return;
+  var a=b.dataset.act, v=b.dataset.v, focusSel=null;
+  if(a==='eye') S.show=!S.show;
+  else if(a==='method'){S.method=v;S.id='';S.fp_id='';S.err={};}
+  else if(a==='cycle'){S.method=S.method==='username'?'mobile':'username';S.id='';S.err={};}
+  else if(a==='accSwitch'){S.accMode=S.accMode==='mobile'?'username':'mobile';S.id='';S.fp_id='';S.err={};}
+  else if(a==='auth'){S.auth=v;S.err={};}
+  else if(a==='goSignup'){S.tab='signup';S.suStep=1;S.err={};}
+  else if(a==='goLogin'){S.tab='login';S.fpStep=1;S.err={};}
+  else if(a==='goForgot'){S.tab='forgot';S.fpStep=1;S.err={};}
+  else if(a==='remember') S.remember=!S.remember;
+  else if(a==='agree'){S.agree=!S.agree; delete S.err.agree;}
+  else if(a==='ref') S.refOpen=!S.refOpen;
+  else if(a==='cc'){S.ccOpen=S.ccOpen===v?null:v; S.tipOpen=null; focusSel='.cc-search';}
+  else if(a==='bankPick'){S.su_bank=v; S.ccOpen=null; delete S.err.su_bank; focusSel='[data-bind="su_acc"]';}
+  else if(a==='suBack'){S.suStep=Math.max(1,S.suStep-1);S.err={};}
+  else if(a==='suDone'){S.tab='login';S.suStep=1;S.method='username';S.id=S.su_user;S.err={};toast('success','Welcome! You can now log in.');}
+  else if(a==='copy'){ try{navigator.clipboard.writeText(v);}catch(x){} toast('success','Copied to clipboard'); return; }
+  else if(a==='ccPick'){S.country=v; S.ccOpen=null; focusSel='[data-f] input[type="tel"]';}
+  else if(a==='tip'){S.tipOpen=S.tipOpen===v?null:v; S.ccOpen=null;}
+  else if(a==='getCode'){ if(S.timer) return; startTimer(); toast('success','Verification code sent to your '+via()+'.'); focusSel='[data-bind="fp_code"]'; }
+  render();
+  if(focusSel){ var el=app.querySelector(focusSel); if(el) el.focus(); }
+});
+document.addEventListener('click',function(e){
+  var changed=false;
+  if(S.ccOpen&&!e.target.closest('.cc-pop,[data-act="cc"]')){S.ccOpen=null;changed=true;}
+  if(S.tipOpen&&!e.target.closest('.tip-pop,[data-act="tip"]')){S.tipOpen=null;changed=true;}
+  if(changed) render();
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&(S.ccOpen||S.tipOpen)){ var k=S.ccOpen; S.ccOpen=S.tipOpen=null; render(); if(k){ var c=app.querySelector('[data-act="cc"]'); if(c) c.focus(); } }
+});
+app.addEventListener('input',function(e){
+  var t=e.target;
+  if(t.classList.contains('cc-search')){
+    var q=t.value.trim().toLowerCase(), n=0, pop=t.closest('.cc-pop');
+    pop.querySelectorAll('.cc-item').forEach(function(b){ var m=b.dataset.s.indexOf(q)>=0; b.hidden=!m; if(m) n++; });
+    pop.querySelector('.cc-empty').hidden=!!n; return;
+  }
+  var k=t.dataset.bind; if(!k) return;
+  var v=t.value, isPin=t.classList.contains('pin-input');
+  if(isPin){ v=v.replace(/\D/g,'').slice(0,6); t.value=v; }
+  S[k]=v; clearErr(k);
+  var fw=app.querySelector('[data-f="'+k+'"]'); if(fw&&fw.querySelector('.f-ok')) fw.classList.toggle('is-valid',isValid(k));
+  if(isPin){
+    paintPin();
+    if(v.length===6){ var all=[].slice.call(app.querySelectorAll('.pin-input')), i=all.indexOf(t); if(all[i+1]&&!all[i+1].value) all[i+1].focus(); }
+  } else paintBtn();
+  paintRules(k);
+});
+app.addEventListener('focusin',paintPin);
+app.addEventListener('focusout',function(){setTimeout(paintPin,0);});
+app.addEventListener('submit',function(e){e.preventDefault();submit();});
+/* when an option is changed, switch the preview to where that option is visible */
+(function(){
+  var pinKeys=['pinStyle','pinEye'], phoneKeys=['phoneLayout','phoneIcon','codeDropdown','country'];
+  if(pinKeys.indexOf(FOCUS)>=0) S.auth='pin';
+  if(FOCUS==='defaultAuth') S.auth=CFG.defaultAuth;
+  if(phoneKeys.indexOf(FOCUS)>=0 && S.tab!=='signup'){ if(CFG.accountSwitch==='inline') S.accMode='mobile'; else S.method='mobile'; }
+  if(FOCUS==='showTip' && S.tab==='forgot' && S.fpStep===1) S.fpStep=2;
+  if(FOCUS==='demoResult') S.tab='login';
+})();
+if(CFG.walk){
+  S.id='player01'; S.pwd='abc123'; S.pin='123456';
+  S.su_user='player01'; S.su_phone='0926888080'; S.su_pwd='abc123'; S.su_pwd2='abc123'; S.su_pin='123456'; S.su_pin2='123456';
+  S.su_bank=banks()[0][0]; S.su_acc='28384858688'; S.su_name='Micheal Eng';
+  S.fp_id='player01'; S.fp_code='123456'; S.fp_pwd='newpass1'; S.fp_pwd2='newpass1'; S.fp_pin='654321'; S.fp_pin2='654321';
+}
+if(S.suStep>=2&&!S.su_user){ S.su_user='player01'; S.su_phone='0926888080'; S.su_pwd='abc123'; S.su_pwd2='abc123'; S.su_pin='123456'; S.su_pin2='123456'; }
+if(S.suStep>=3){ S.su_bank=banks()[0][0]; S.su_acc='28384858688'; S.su_name='Micheal Eng'; }
+if(CFG.showErrors) S.err=validate();
+render();
+(function(){
+  if(!FOCUS) return;
+  var PW=['[data-f="pwd"]','[data-f="su_pwd"]','[data-f="fp_pwd"]','[data-pin]'];
+  var map={pinStyle:['[data-pin]'],pinEye:['.pin-eye','[data-pin]'],showAuthToggle:['.toggle'].concat(PW),defaultAuth:['.toggle'].concat(PW),
+    phoneLayout:['.f-split','.f-code'],phoneIcon:['.is-flag','.f-codebox','.f-code'],codeDropdown:['[data-act="cc"]','.f-codebox','.f-code'],country:['.f-codebox','.f-code'],
+    showIcon:['.f'],labelOutside:['.f'],showTip:['.tip-btn'].concat(PW),topTabs:['.seg-2','.title'],accountSwitch:['.seg-3','.switch-link','[data-act="accSwitch"]'],
+    btnIcon:['#cta','.btn-primary'],btnCase:['#cta','.btn-primary']};
+  var list=map[FOCUS]; if(!list) return;
+  var el=null; for(var i=0;i<list.length&&!el;i++) el=app.querySelector(list[i]);
+  if(!el) return;
+  var box=el.closest('.f,[data-pin],.toggle,.seg,.switch-link,.btn-primary,.title')||el;
+  box.classList.add('hl'); box.scrollIntoView({block:'center'});
+  setTimeout(function(){box.classList.remove('hl');},1800);
+})();
+<\/script>
+</body>
+</html>
+</script>
+
+<script>
+(function(){
+  /* [key, name, hint, choices, liveSiteValue, pages(optional), defaultIfDifferent] */
+  var GROUPS=[
+    ['Theme',[
+      ['theme','Colour mode','Dark = live site. Light = GHero light theme (brand green kept)',[['dark','Dark'],['light','Light']],'dark']]],
+    ['Try it',[
+      ['walk','Fill-in','Auto-fill sample data so Next / Confirm just work',[['false','Manual'],['true','Auto-fill']],'false'],
+      ['showErrors','Errors','Show every validation error at once',[['false','Off'],['true','Show all']],'false'],
+      ['demoResult','Login result','Which message appears',[['error','Error'],['success','Success']],'error','login']]],
+    ['Header',[
+      ['topTabs','Form top','Title only, or Login / Sign Up tabs',[['false','Title'],['true','Tabs']],'false','login signup'],
+      ['accountSwitch','Account type','How users pick the account type',[['pill','Pill'],['link','Link'],['inline','In field ⇄']],'pill','login forgot']]],
+    ['Input field',[
+      ['showIcon','Field icon','Icon at the left of each field',[['true','Show'],['false','Hide']],'true'],
+      ['labelOutside','Field label','Placeholder only, or a label above the box',[['false','Inside'],['true','Above']],'false'],
+      ['phoneLayout','Mobile number','Country code in its own box, or inside the field',[['split','Separate'],['inline','In field']],'split','login signup forgot'],
+      ['phoneIcon','Code icon','Phone icon or country flag',[['mobile','Phone'],['flag','Flag']],'mobile','login signup forgot'],
+      ['codeDropdown','Country picker','Tap the code to choose a country (▼)',[['false','Off'],['true','On']],'false','login signup forgot'],
+      ['country','Country','Code and flag shown',[['KH','KH +855'],['TH','TH +66']],'KH','login signup forgot'],
+      ['showTip','Rules tooltip','(!) next to password / PIN',[['true','Show'],['false','Hide']],'true']]],
+    ['Password / PIN',[
+      ['showAuthToggle','Password/PIN switch','Let users choose between the two',[['true','Show'],['false','Hide']],'true'],
+      ['defaultAuth','Selected first','',[['password','Password'],['pin','PIN']],'password'],
+      ['pinStyle','PIN input','',[['boxes','6 boxes'],['underline','Underline'],['plain','Field']],'boxes'],
+      ['pinEye','PIN eye','Show / hide the digits',[['true','Show'],['false','Hide']],'false',null,'true']]],
+    ['Button',[
+      ['btnIcon','Button icon','Icon before the text',[['false','Off'],['true','On']],'false'],
+      ['btnCase','Button text','',[['normal','Login'],['upper','LOGIN']],'normal']]]
+  ];
+  var PRESETS=[
+    ['site','Live site','Exactly like the current site',{}],
+    ['new','New design','Flag + picker, eye, icons, UPPERCASE',{pinEye:'true',phoneIcon:'flag',codeDropdown:'true',btnIcon:'true',btnCase:'upper'}]
+  ];
+  var PAGES=[['login','Login'],['signup','Sign Up'],['forgot','Forgot Password']];
+  var MON='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>';
+  var PHN='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18h2"/></svg>';
+  var WIDTHS=[['1920',MON+'1920'],['1440',MON+'1440'],['440',PHN+'440'],['375',PHN+'375'],['fit','Fit']];
+  var STEPS={signup:['suStep',['Info','Bank','Confirm','Done']],forgot:['fpStep',['Account','Reset','Done']]};
+  var DEMO=['walk','showErrors','demoResult'];
+  var FOCUS='', HINT='';
+  var HINTS={
+    theme:{dark:'Dark theme (live site)',light:'Light theme'},
+    walk:{'true':'Now press Next / Confirm to go through the steps','false':'Manual — fill the fields yourself'},
+    showErrors:{'true':'Every validation error is shown','false':'Errors hidden'},
+    demoResult:{error:'Press Login to see the error message (tip: Fill-in → Auto-fill)',success:'Press Login to see the success message (tip: Fill-in → Auto-fill)'},
+    topTabs:{'true':'Login / Sign Up tabs at the top','false':'Title at the top'},
+    accountSwitch:{pill:'Username / Mobile / Email pill',link:'“Log in with …” link under the title',inline:'Tap ⇄ inside the field to switch'},
+    showIcon:{'true':'Icons shown in the fields','false':'Icons removed from the fields'},
+    labelOutside:{'true':'Labels now sit above each field','false':'Labels inside the field (placeholder)'},
+    phoneLayout:{split:'Switched to Mobile — code in its own box',inline:'Switched to Mobile — code inside the field'},
+    phoneIcon:{mobile:'Switched to Mobile — phone icon before the code',flag:'Switched to Mobile — flag before the code'},
+    codeDropdown:{'true':'Switched to Mobile — tap the code to open the list','false':'Country picker off'},
+    country:{KH:'Switched to Mobile — Cambodia +855',TH:'Switched to Mobile — Thailand +66'},
+    showTip:{'true':'(!) shown next to the password','false':'(!) removed'},
+    showAuthToggle:{'true':'Password / PIN switch shown','false':'Switch hidden — users only get the “Selected first” option'},
+    defaultAuth:{password:'Showing Password',pin:'Showing PIN'},
+    pinStyle:{boxes:'Switched to PIN — 6 boxes',underline:'Switched to PIN — one field with underlines',plain:'Switched to PIN — one plain field'},
+    pinEye:{'true':'Switched to PIN — eye shown','false':'Switched to PIN — eye hidden'},
+    btnIcon:{'true':'Buttons now have an icon','false':'Buttons without icon'},
+    btnCase:{normal:'Button text: Login',upper:'Button text: LOGIN'}
+  };
+  var DEF={page:'login',w:'1920',suStep:'1',fpStep:'1'}, SITE={}, ALL=[];
+  GROUPS.forEach(function(g){g[1].forEach(function(o){DEF[o[0]]=o[6]||o[4];SITE[o[0]]=o[4];ALL.push(o);});});
+  var SRC=document.getElementById('pageSrc').textContent.replace(/<\\\/script>/g,'<'+'/script>');
+  var q=new URLSearchParams(location.search), V={};
+  Object.keys(DEF).forEach(function(k){V[k]=q.get(k)||DEF[k];});
+  var $=function(id){return document.getElementById(id);};
+  var pv=$('pv'), sc=$('scaler'), stage=$('stage'), panel=$('panel'), varBtn=$('varBtn');
+  var openGroups={'Theme':true,'Try it':true,'Header':true,'Input field':true,'Password / PIN':true,'Button':false};
+
+  function applies(o){ if(o[0]==='pinEye'&&V.pinStyle!=='boxes') return false; if(o[0]==='phoneIcon'&&V.showIcon!=='true') return false; return !o[5]||o[5].split(' ').indexOf(V.page)>=0;}
+  function seg(key,choices,site){
+    return '<div class="seg" role="group">'+choices.map(function(c){
+      var on=V[key]===c[0];
+      return '<button type="button" data-k="'+key+'" data-v="'+c[0]+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'"'+(site===c[0]?' title="Live site"':'')+'>'+c[1]+(site===c[0]?' <span class="site-dot" aria-hidden="true"></span>':'')+'</button>';
+    }).join('')+'</div>';
+  }
+  function isDesign(k){return DEMO.indexOf(k)<0;}
+  function changes(){return ALL.filter(function(o){return isDesign(o[0])&&applies(o)&&V[o[0]]!==SITE[o[0]];}).length;}
+  function presetOn(p){return ALL.filter(function(o){return isDesign(o[0]);}).every(function(o){return V[o[0]]===(p[3][o[0]]||SITE[o[0]]);});}
+  function draw(){
+    $('pageSeg').innerHTML=PAGES.map(function(p){var on=V.page===p[0];return '<button type="button" data-k="page" data-v="'+p[0]+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'">'+p[1]+'</button>';}).join('');
+    $('widthSeg').innerHTML=WIDTHS.map(function(p){var on=V.w===p[0];return '<button type="button" data-k="w" data-v="'+p[0]+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'">'+p[1]+'</button>';}).join('');
+    var st=STEPS[V.page], sn=$('steps');
+    if(st){ var cur=+V[st[0]]; sn.hidden=false;
+      sn.innerHTML='<span class="lbl">Jump to step</span>'+st[1].map(function(n,i){var k=i+1;return (i?'<span class="arrow" aria-hidden="true">›</span>':'')+'<button type="button" class="step'+(k===cur?' on':k<cur?' done':'')+'" data-k="'+st[0]+'" data-v="'+k+'" aria-current="'+(k===cur?'step':'false')+'"><b>'+k+'</b>'+n+'</button>';}).join('');
+    } else sn.hidden=true;
+    var n=changes();
+    $('count').innerHTML=n?'<span class="badge">'+n+'</span> vs live site':'<span class="site-dot"></span> Same as live site';
+    var h='<div class="side-head"><h2>Options</h2><p><span class="site-dot"></span> = live site</p><div class="presets">'+
+      PRESETS.map(function(p){var on=presetOn(p);return '<button type="button" class="preset'+(on?' on':'')+'" data-preset="'+p[0]+'" aria-pressed="'+on+'"><strong>'+p[1]+'</strong><span>'+p[2]+'</span></button>';}).join('')+'</div></div><div class="hint-bar" id="hint"'+(HINT?'':' hidden')+'>'+HINT+'</div><div class="side-body">';
+    GROUPS.forEach(function(g){
+      var rows=g[1].filter(applies); if(!rows.length) return;
+      var gc=rows.filter(function(o){return isDesign(o[0])&&V[o[0]]!==SITE[o[0]];}).length;
+      h+='<details data-g="'+g[0]+'"'+(openGroups[g[0]]?' open':'')+'><summary>'+g[0]+(gc?'<span class="badge">'+gc+'</span>':'')+'</summary><div class="opts">'+
+        rows.map(function(o){var ch=isDesign(o[0])&&V[o[0]]!==SITE[o[0]];
+          return '<div class="opt'+(ch?' changed':'')+'"><div class="opt-top"><span class="opt-name">'+o[1]+'</span>'+(ch?'<button type="button" class="undo" data-k="'+o[0]+'" data-v="'+SITE[o[0]]+'" title="Back to live site" aria-label="Back to live site">↺</button>':'')+'</div>'+seg(o[0],o[3],isDesign(o[0])?o[4]:null)+'</div>';
+        }).join('')+'</div></details>';
+    });
+    panel.innerHTML=h+'</div>';
+  }
+  function cfg(){var o={};Object.keys(V).forEach(function(k){if(k==='w')return;var v=V[k];o[k]=v==='true'?true:v==='false'?false:v;});o.focus=FOCUS;return o;}
+  function doc(){return SRC.replace('/*CFG*/{}',JSON.stringify(cfg()));}
+  function sync(){
+    var p=new URLSearchParams();
+    Object.keys(V).forEach(function(k){ if(V[k]!==DEF[k]) p.set(k,V[k]); });
+    try{history.replaceState(null,'',location.pathname+(p.toString()?'?'+p:''));}catch(e){}
+  }
+  function size(){
+    var avail=stage.clientWidth-48, availH=stage.clientHeight-64;
+    var W=V.w==='fit'?Math.max(320,avail):+V.w;
+    var H=V.w==='fit'?Math.max(600,availH):(W>=768?(W>=1900?1080:900):(W===440?956:812));
+    var s=Math.min(1,avail/W);
+    pv.style.width=W+'px'; pv.style.height=H+'px'; pv.style.transform='scale('+s+')';
+    sc.style.width=Math.round(W*s)+'px'; sc.style.height=Math.round(H*s)+'px';
+    $('meta').textContent=(W<768?'Mobile ':'Desktop ')+W+' × '+H+(s<1?'  ·  shown at '+Math.round(s*100)+'%':'');
+  }
+  function write(d){
+    pv.removeAttribute('srcdoc');
+    try{ var dd=pv.contentDocument; if(!dd) throw new Error('no doc'); dd.open(); dd.write(d); dd.close(); }
+    catch(e){ pv.srcdoc=d; }
+  }
+  function load(){ sync(); draw(); write(doc()); size(); }
+  document.addEventListener('click',function(e){
+    var p=e.target.closest('[data-preset]');
+    if(p){ var pr=PRESETS.filter(function(x){return x[0]===p.dataset.preset;})[0]; ALL.forEach(function(o){ if(isDesign(o[0])) V[o[0]]=pr[3][o[0]]||SITE[o[0]]; }); HINT=pr[0]==='new'?'New design applied — try Mobile and PIN':'Back to the live site look'; load(); return; }
+    var b=e.target.closest('button[data-k]'); if(!b) return;
+    var k=b.dataset.k; V[k]=b.dataset.v;
+    if(k==='page'){ V.suStep='1'; V.fpStep='1'; }
+    FOCUS=(k==='page'||k==='w'||k==='suStep'||k==='fpStep')?'':k;
+    HINT=(HINTS[k]&&HINTS[k][V[k]])||'';
+    if(k==='w'){ sync(); draw(); size(); } else load();
+    FOCUS='';
+  });
+  panel.addEventListener('toggle',function(e){ var d=e.target; if(d.tagName==='DETAILS') openGroups[d.dataset.g]=d.open; },true);
+  varBtn.addEventListener('click',function(){ panel.hidden=!panel.hidden; varBtn.textContent=panel.hidden?'Show options':'Hide options'; varBtn.setAttribute('aria-expanded',String(!panel.hidden)); size(); });
+  $('copy').addEventListener('click',function(){ var t=location.href; (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){ $('copy').textContent='Copied ✓'; setTimeout(function(){$('copy').textContent='Copy link';},1500); },function(){ window.prompt('Copy this link:',t); }); });
+  window.addEventListener('resize',size);
+  $('open').addEventListener('click',function(){ window.open(URL.createObjectURL(new Blob([doc()],{type:'text/html'})),'_blank'); });
+  $('dl').addEventListener('click',function(){
+    var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([doc()],{type:'text/html'}));
+    a.download='ibskusd-'+V.page+(location.search?'-'+location.search.slice(1).replace(/[^a-z0-9]+/gi,'-').slice(0,60):'-site')+'.html'; a.click();
+  });
+  load();
+})();
+</script>
+</body>
+</html>
