@@ -197,7 +197,7 @@ input:focus{outline:none}
 /* PIN – single field */
 .pin-f{margin-top:16px}
 .pin-mid{position:relative;flex:1;align-self:stretch;display:flex;align-items:center}
-.pin-slots{display:flex;justify-content:space-between;gap:10px;width:100%;max-width:300px}
+.pin-slots{display:flex;justify-content:space-between;gap:10px;width:100%;max-width:240px}
 .pin-slot{width:24px;min-height:26px;text-align:center;border-bottom:2px solid var(--placeholder);font-size:18px;line-height:24px}
 .pin-slot.filled{border-color:var(--ink)}
 .pin-slot.active{border-color:var(--lime)}
@@ -655,7 +655,8 @@ function pinHTML(bind,label){
   }
   if(CFG.pinStyle==='underline'){ for(i=0;i<6;i++) cells+='<span class="pin-slot" data-i="'+i+'" aria-hidden="true"></span>'; cells='<span class="pin-slots">'+cells+'</span>'; }
   else cells='<span class="pin-plain" aria-hidden="true"></span>';
-  return '<div class="f pin-f'+cls+'" data-pin="'+bind+'" data-f="'+bind+'" data-ph="'+label+'">'+lab(label,true)+'<div class="'+boxCls()+'">'+ico('lock',!CFG.labelOutside)+
+  var above=CFG.labelOutside||CFG.pinStyle==='underline';
+  return '<div class="f pin-f'+cls+'" data-pin="'+bind+'" data-f="'+bind+'" data-ph="'+label+'">'+(above?'<div class="f-label">'+label+'<span class="req"> *</span></div>':'')+'<div class="'+boxCls()+'">'+ico('lock',!above)+
     '<span class="pin-mid">'+cells+inp+'</span>'+
     '<span class="f-tools">'+eye()+tipBtn(bind)+'</span></div>'+errHTML(bind)+'</div>';
 }
