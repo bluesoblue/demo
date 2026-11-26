@@ -376,6 +376,11 @@ body.light .soc-pill svg [fill="#FFFFFF"],body.light .soc-ico svg [fill="#FFFFFF
 body.light .flag svg [stroke="#FFFFFF"]{stroke:#FFFFFF}
 body.light .soc-pill.more{color:var(--ink)}
 
+/* ===== underline slots for mobile / password ===== */
+.slot-mid{position:relative;flex:1;align-self:stretch;display:flex;align-items:center;min-width:0}
+.slot-row{display:flex;gap:6px;overflow:hidden}
+.slot-row .pin-slot{width:14px;flex-shrink:0;min-height:22px;font-size:16px;line-height:22px;border-bottom-width:1.5px}
+.slot-input{position:absolute;inset:0;width:100%;height:100%;padding:0;opacity:0;border:0;background:transparent;font-size:16px;cursor:text}
 /* ===== EU result pages ===== */
 .eu-done{display:flex;flex-direction:column;align-items:center;text-align:center}
 .eu-done .cheers{margin-top:28px;line-height:0}
@@ -664,10 +669,13 @@ function rulesHTML(k){
 
 /* o: {kind:text|email|password|phone|select|account|code, icon, label, ph, phOut, bind, required, value, rules} */
 function field(o){
-  var k=o.bind, req=o.required!==false, star=req&&!CFG.labelOutside, ph=CFG.labelOutside?o.phOut:o.ph;
+  var uPh=CFG.phoneStyle==='underline', uPw=CFG.pwdStyle==='underline';
+  var fl=CFG.labelOutside||(S.tab!=='login'&&((o.kind==='phone'&&uPh)||(o.kind==='password'&&uPw)));
+  var k=o.bind, req=o.required!==false, star=req&&!fl, ph=CFG.labelOutside?o.phOut:o.ph;
+  function slots(n,mask){ return '<span class="slot-mid" data-slots="'+k+'" data-n="'+n+'" data-mask="'+(mask?1:0)+'"><span class="slot-row" aria-hidden="true"></span><input class="slot-input"'+(mask?'':' data-num="1" inputmode="numeric"')+' type="'+(mask&&!S.show?'password':'text')+'" maxlength="'+(mask?16:12)+'" aria-label="'+o.label+'" value="'+val+'"'+bind+aria(k)+'></span>'; }
   var val=k?esc(S[k]):'', bind=k?' data-bind="'+k+'"':'', er=k&&S.err[k], bc=boxCls();
   function input(t,extra,im){return '<input class="f-input'+(extra||'')+'" type="'+t+'"'+(im?' inputmode="'+im+'"':'')+' placeholder="'+ph+'" aria-label="'+o.label+'" value="'+val+'"'+bind+aria(k)+'>';}
-  function wrap(label,body,after){return '<div class="f'+(er?' has-err':'')+(er&&S.shake?' shake':'')+(o.valid&&!er&&isValid(k)?' is-valid':'')+'"'+(k?' data-f="'+k+'"':'')+'>'+lab(label,req)+body+errHTML(k)+(after||'')+ccPop(k)+'</div>';}
+  function wrap(label,body,after){return '<div class="f'+(er?' has-err':'')+(er&&S.shake?' shake':'')+(o.valid&&!er&&isValid(k)?' is-valid':'')+'"'+(k?' data-f="'+k+'"':'')+'>'+(fl?'<div class="f-label">'+label+(req?'<span class="req"> *</span>':'')+'</div>':'')+body+errHTML(k)+(after||'')+ccPop(k)+'</div>';}
   if(o.kind==='account'){
     var lst=o.list||ACC, sk=o.skey||'accMode', md=S[sk]; if(lst.indexOf(md)<0) md=S[sk]=lst[0];
     var mob=md==='mobile', em=md==='email', nx=lst[(lst.indexOf(md)+1)%lst.length];
@@ -675,13 +683,13 @@ function field(o){
     o.label=mob?'Mobile No':em?'Email':'Username';
     var sw=lst.length>1?'<button type="button" class="icon-btn" data-act="accSwitch" data-s="'+sk+'" aria-label="Switch to '+nx+'" title="Switch to '+nx+'">'+SWAP+'</button><span class="f-div"></span>':'';
     return wrap(o.label,'<div class="'+bc+'">'+ico(mob?'mobile':em?'email':'user',star)+(mob?codeBtn(k,'f-code',dial()):'')+sw+
-      input(mob?'tel':em?'email':'text',mob?' is-digits':'',mob?'numeric':'')+'</div>');
+      (mob&&uPh?slots(10,false):input(mob?'tel':em?'email':'text',mob?' is-digits':'',mob?'numeric':''))+'</div>');
   }
   if(o.kind==='phone'&&CFG.phoneLayout==='split'){
-    return wrap(o.label,'<div class="f-split">'+codeBtn(k,'f-codebox',ico('mobile',star)+'<span>'+dial()+'</span>')+'<div class="f-box no-icon">'+input('tel','','numeric')+'</div></div>');
+    return wrap(o.label,'<div class="f-split">'+codeBtn(k,'f-codebox',ico('mobile',star)+'<span>'+dial()+'</span>')+'<div class="f-box no-icon">'+(uPh?slots(10,false):input('tel','','numeric'))+'</div></div>');
   }
   var inner;
-  if(o.kind==='phone') inner=ico('mobile',star)+codeBtn(k,'f-code',dial())+input('tel','','numeric');
+  if(o.kind==='phone') inner=ico('mobile',star)+codeBtn(k,'f-code',dial())+(uPh?'<span class="f-div"></span>'+slots(10,false):input('tel','','numeric'));
   else if(o.kind==='code') inner=ico(o.icon||'shield',star)+input('text','','numeric')+'<button type="button" class="f-btn" id="getcode" data-act="getCode" data-v="'+k+'"'+(S.timer?' disabled':'')+'>'+(S.timer?'Resend ('+S.timer+'s)':'Get code')+'</button>';
   else if(o.kind==='select') inner=ico(o.icon,star)+'<span class="f-value">'+o.value+'</span>'+TRI;
   else if(o.kind==='bank'){
@@ -689,7 +697,7 @@ function field(o){
     return wrap(o.label,'<button type="button" class="'+bc+' f-select" data-act="cc" data-v="'+k+'" aria-haspopup="listbox" aria-expanded="'+open+'"'+aria(k)+'>'+ico('bank',star)+
       (bk?badge(bk)+'<span class="f-value">'+bk[1]+'</span>':'<span class="f-value ph">'+ph+'</span>')+'<span class="tri'+(open?' up':'')+'">'+TRI+'</span></button>');
   }
-  else if(o.kind==='password') inner=ico('lock',star)+input(S.show?'text':'password')+'<span class="f-tools">'+eye()+tipBtn(k)+'</span>';
+  else if(o.kind==='password') inner=ico('lock',star)+(uPw?slots(8,true):input(S.show?'text':'password'))+'<span class="f-tools">'+eye()+tipBtn(k)+'</span>';
   else inner=ico(o.icon,star)+input(o.kind==='email'?'email':'text',o.digits?' ':'',o.digits?'numeric':'');
   if(o.valid) inner+='<span class="f-ok">'+OKG+'</span>';
   return wrap(o.label,'<div class="'+bc+'">'+inner+'</div>',o.rules?rulesHTML(k):'');
@@ -952,7 +960,15 @@ function toast(type,msg){
 
 /* ---------- paint (no full re-render while typing) ---------- */
 function paintBtn(){ var b=document.getElementById('cta'); if(b&&!S.loading) b.classList.toggle('ready',Object.keys(validate()).length===0); }
+function paintSlots(){
+  app.querySelectorAll('[data-slots]').forEach(function(g){
+    var v=S[g.dataset.slots]||'', base=+g.dataset.n, mask=g.dataset.mask==='1', n=Math.max(base, mask?v.length+(v.length>=base?1:0):base), inp=g.querySelector('input'), ai=document.activeElement===inp?Math.min(v.length,n-1):-1, row=g.querySelector('.slot-row');
+    if(row.children.length!==n) row.innerHTML=new Array(n+1).join('<span class="pin-slot"></span>');
+    [].forEach.call(row.children,function(el,i){ var c=v[i]||''; el.textContent=c?(mask&&!S.show?'•':c):''; el.classList.toggle('filled',!!c); el.classList.toggle('active',i===ai); });
+  });
+}
 function paintPin(){
+  paintSlots();
   document.querySelectorAll('[data-pin]').forEach(function(g){
     var v=S[g.dataset.pin]||'', inp=g.querySelector('.pin-input'), ai=document.activeElement===inp?Math.min(v.length,5):-1;
     g.querySelectorAll('.pin-box,.pin-slot').forEach(function(el){
@@ -1068,13 +1084,14 @@ app.addEventListener('input',function(e){
   }
   var k=t.dataset.bind; if(!k) return;
   var v=t.value, isPin=t.classList.contains('pin-input');
+  if(t.classList.contains('slot-input')&&t.dataset.num){ v=v.replace(/\D/g,'').slice(0,12); t.value=v; }
   if(isPin){ v=v.replace(/\D/g,'').slice(0,6); t.value=v; }
   S[k]=v; clearErr(k);
   var fw=app.querySelector('[data-f="'+k+'"]'); if(fw&&fw.querySelector('.f-ok')) fw.classList.toggle('is-valid',isValid(k));
   if(isPin){
     paintPin();
     if(v.length===6){ var all=[].slice.call(app.querySelectorAll('.pin-input')), i=all.indexOf(t); if(all[i+1]&&!all[i+1].value) all[i+1].focus(); }
-  } else paintBtn();
+  } else { if(t.classList.contains('slot-input')) paintSlots(); paintBtn(); }
   paintRules(k);
 });
 app.addEventListener('focusin',paintPin);
@@ -1082,7 +1099,8 @@ app.addEventListener('focusout',function(){setTimeout(paintPin,0);});
 app.addEventListener('submit',function(e){e.preventDefault();submit();});
 /* when an option is changed, switch the preview to where that option is visible */
 (function(){
-  var pinKeys=['pinStyle','pinEye'], phoneKeys=['phoneLayout','phoneIcon','codeDropdown','country'];
+  var pinKeys=['pinStyle','pinEye'], phoneKeys=['phoneLayout','phoneIcon','codeDropdown','country','phoneStyle'];
+  if(FOCUS==='pwdStyle') S.auth='password';
   if(pinKeys.indexOf(FOCUS)>=0) S.auth='pin';
   if(FOCUS==='defaultAuth') S.auth=CFG.defaultAuth;
   if(phoneKeys.indexOf(FOCUS)>=0 && S.tab!=='signup' && ACC.indexOf('mobile')>=0){ if(CFG.accountSwitch==='inline') S.accMode='mobile'; else S.method='mobile'; }
@@ -1107,7 +1125,7 @@ render();
   var map={pinStyle:['[data-pin]'],pinEye:['.pin-eye','[data-pin]'],showAuthToggle:['.toggle'].concat(PW),defaultAuth:['.toggle'].concat(PW),
     phoneLayout:['.f-split','.f-code'],phoneIcon:['.is-flag','.f-codebox','.f-code'],codeDropdown:['[data-act="cc"]','.f-codebox','.f-code'],country:['.f-codebox','.f-code'],
     showIcon:['.f'],labelOutside:['.f'],showTip:['.tip-btn'].concat(PW),topTabs:['.seg-2','.ul-tabs','.title'],accountSwitch:['.seg-3','.ul-tabs','.switch-link','[data-act="accSwitch"]'],accTypes:['.seg-3','.ul-tabs','.switch-link','[data-f="id"]','[data-f="fp_id"]'],suFields:['.seg-3','.ul-tabs','.switch-link','[data-f="su_user"]','[data-f="su_phone"]','[data-f="su_email"]'],suMethod:['.seg-3','.ul-tabs','.switch-link','[data-act="accSwitch"]','[data-f="su_user"]'],
-    btnIcon:['#cta','.btn-primary'],btnCase:['#cta','.btn-primary'],
+    btnIcon:['#cta','.btn-primary'],btnCase:['#cta','.btn-primary'],phoneStyle:['[data-slots]','.f-split','.f-code'],pwdStyle:['[data-slots]','[data-f="pwd"]','[data-f="su_pwd"]'],
     banner:['.gj-banner','.title'],social:['.soc'],socialPos:['.soc'],socialCount:['.soc'],lang:['.lang'],smsCode:['[data-f="su_sms"]','[data-f="su_phone"]']};
   var list=map[FOCUS]; if(!list) return;
   var el=null; for(var i=0;i<list.length&&!el;i++) el=app.querySelector(list[i]);
@@ -1148,6 +1166,7 @@ render();
       ['showIcon','Field icon','Icon at the left of each field',[['true','Show'],['false','Hide']],'true'],
       ['labelOutside','Field label','Placeholder only, or a label above the box',[['false','Inside'],['true','Above']],'false'],
       ['phoneLayout','Mobile number','Country code in its own box, or inside the field',[['split','Separate'],['inline','In field']],'split','login signup forgot'],
+      ['phoneStyle','Mobile input','Field, or one underline per digit',[['field','Field'],['underline','Underline']],'field','login signup forgot'],
       ['phoneIcon','Code icon','Phone icon or country flag',[['mobile','Phone'],['flag','Flag']],'mobile','login signup forgot'],
       ['codeDropdown','Country picker','Tap the code to choose a country (▼)',[['false','Off'],['true','On']],'false','login signup forgot'],
       ['country','Country','Code and flag shown',[['KH','KH +855'],['TH','TH +66']],'KH','login signup forgot'],
@@ -1161,6 +1180,7 @@ render();
     ['Password / PIN',[
       ['showAuthToggle','Password/PIN switch','Let users choose between the two',[['true','Show'],['false','Hide']],'true'],
       ['defaultAuth','Selected first','',[['password','Password'],['pin','PIN']],'password'],
+      ['pwdStyle','Password input','Field, or underline slots',[['field','Field'],['underline','Underline']],'field'],
       ['pinStyle','PIN input','',[['boxes','6 boxes'],['underline','Underline'],['plain','Field']],'boxes'],
       ['pinEye','PIN eye','Show / hide the digits',[['true','Show'],['false','Hide']],'false',null,'true']]],
     ['Button',[
@@ -1211,6 +1231,8 @@ render();
     showTip:{'true':'(!) shown next to the password','false':'(!) removed'},
     showAuthToggle:{'true':'Password / PIN switch shown','false':'Switch hidden — users only get the “Selected first” option'},
     defaultAuth:{password:'Showing Password',pin:'Showing PIN'},
+    phoneStyle:{field:'Switched to Mobile — normal field',underline:'Switched to Mobile — one underline per digit'},
+    pwdStyle:{field:'Password — normal field',underline:'Password — underline slots (labels move above on Sign Up)'},
     pinStyle:{boxes:'Switched to PIN — 6 boxes',underline:'Switched to PIN — one field with underlines',plain:'Switched to PIN — one plain field'},
     pinEye:{'true':'Switched to PIN — eye shown','false':'Switched to PIN — eye hidden'},
     btnIcon:{'true':'Buttons now have an icon','false':'Buttons without icon'},
