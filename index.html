@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Login & Sign Up prototype</title>
+<title>22FUN · Login / Sign Up – variant preview</title>
 <style>
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;height:100%;background:#26262A;color:#EDEDF0;font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
@@ -65,7 +65,10 @@ details[open] summary::after{transform:rotate(-135deg)}
 .hint-bar[hidden]{display:none}
 .undo{padding:0 2px;border:0;background:none;color:#84CC16;font-size:13px;cursor:pointer}
 .opt .seg{display:flex;width:196px;flex-shrink:0}
-.opt .seg button{flex:1;justify-content:center;height:28px;padding:0 6px;font-size:12px}
+.opt .seg button{flex:1;justify-content:center;min-width:0;height:28px;padding:0 6px;font-size:12px}
+.opt.wide{flex-wrap:wrap;row-gap:6px}
+.opt.wide .opt-top{flex-basis:100%}
+.opt.wide .seg{width:100%}
 .site-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#84CC16}
 .legend{display:flex;align-items:center;gap:6px;padding:10px 16px;color:#8B8B94;font-size:11px}
 .status{display:inline-flex;align-items:center;gap:6px;color:#A1A1AA;white-space:nowrap}
@@ -76,7 +79,7 @@ details[open] summary::after{transform:rotate(-135deg)}
 </head>
 <body>
 <header class="tb">
-<h1>Login / Sign Up · design prototype</h1>
+<h1>22FUN preview</h1>
 <div class="seg" id="pageSeg" role="group" aria-label="Page"></div>
 <div class="seg" id="widthSeg" role="group" aria-label="Screen size"></div>
 <span class="spacer"></span>
@@ -339,15 +342,19 @@ body.light{--tab-on:var(--green)}
 .soc.top{margin-top:12px;margin-bottom:4px}
 .soc-div{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px;font-weight:600;line-height:17px;white-space:nowrap}
 .soc-div::before,.soc-div::after{content:"";flex:1;height:1px;background:var(--divider)}
-.soc-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:14px}
+.soc-row{display:flex;justify-content:center;gap:8px;margin-top:14px}
+.soc-row>button{flex:0 0 calc((100% - 16px)/3);min-width:0;justify-content:center}
+.soc-row.n2>button{flex-basis:calc((100% - 8px)/2)}
+.soc-row.n1>button{flex-basis:50%}
 .soc.top .soc-row{margin:0}
+.soc.top .soc-row+.soc-row{margin-top:8px}
 .soc-grid{display:grid;gap:8px;margin-top:14px}
 .soc-grid+.soc-grid,.soc-row+.soc-row{margin-top:8px}
 .soc.top .soc-grid{margin:0}
 .soc.top .soc-div{margin-top:14px}
 .soc-ico{display:flex;align-items:center;justify-content:center;height:40px;border:1px solid var(--toggle-border);border-radius:6px;background:transparent;color:var(--ink);font:600 13px var(--font);cursor:pointer}
 .soc-ico:hover{background:var(--hover)}
-.soc-pill{display:flex;align-items:center;gap:8px;height:42px;padding:0 18px 0 14px;border:0;border-radius:100px;color:#FFFFFF;font:700 16px var(--font);cursor:pointer}
+.soc-pill{display:flex;align-items:center;gap:6px;height:42px;padding:0 8px;white-space:nowrap;overflow:hidden;border:0;border-radius:100px;color:#FFFFFF;font:700 16px var(--font);cursor:pointer}
 .soc-pill:hover{filter:brightness(1.06)}
 .soc-pill.more{padding:0 16px;background:var(--pill-bg);color:var(--ink);border:1px solid var(--toggle-border)}
 .soc svg{display:block;flex-shrink:0}
@@ -360,30 +367,19 @@ body.light .soc-pill svg [fill="#FFFFFF"],body.light .soc-ico svg [fill="#FFFFFF
 body.light .flag svg [stroke="#FFFFFF"]{stroke:#FFFFFF}
 body.light .soc-pill.more{color:var(--ink)}
 
-/* ===== 22FUN template (GOJUDI layout, 22FUN blue) ===== */
-body.gj{
-  --bg-desktop:#0A1220; --bg-mobile:#121C2E; --card:#121C2E;
-  --field-bg:#070D18; --field-border:#070D18; --field-focus:#1E6BFF; --placeholder:#757575;
-  --pill-bg:#070D18; --grad:linear-gradient(180deg,#5AA2FF,#1E6BFF); --green:#1E6BFF; --lime:#1E6BFF; --tab-on:#1E6BFF;
-  --ink:#FFFFFF; --muted:#A8A8A8; --muted-2:#A8A8A8; --divider:#5F5F5F; --toggle-border:#5F5F5F;
-  --popover:#1B2840; --raised:#070D18; --btn-grey:#2A3650; --hover:#1B2840;
-}
-body.gj.light{
-  --bg-desktop:#F3F3F3; --bg-mobile:#FFFFFF; --card:#FFFFFF;
-  --field-bg:#FFFFFF; --field-border:#D6D6D6; --placeholder:rgba(49,48,48,.6); --pill-bg:#F3F3F3;
-  --ink:#313030; --muted:rgba(49,48,48,.6); --muted-2:rgba(49,48,48,.6); --divider:#D6D6D6; --toggle-border:#D6D6D6;
-  --popover:#FFFFFF; --raised:#F3F3F3; --btn-grey:#F5F5F5; --hover:#F3F3F3;
-}
+/* ===== GOJUDI template (GOJUDI layout, 22FUN green colours) ===== */
+body.gj{--card:#121212}
+body.gj.light{--bg-desktop:#F3F3F3; --card:#FFFFFF}
 body.gj .page{padding-top:56px}
 body.gj .close{z-index:5}
 body.gj .logo img{display:none}
 body.gj .logo{display:flex;align-items:center;justify-content:center;width:150px;height:47px;border:1.5px dashed var(--muted);border-radius:8px;color:var(--muted);font:600 13px var(--font);letter-spacing:.15em;text-decoration:none}
-body.gj .logo::after{content:"22FUN LOGO"}
+body.gj .logo::after{content:"GOJUDI LOGO"}
 body.gj.has-banner .logo{display:none}
 body.gj .auth{max-width:574px;margin-top:20px}
 body.gj.has-banner .auth{margin-top:0}
 .gj-banner{position:relative;display:flex;align-items:center;justify-content:flex-end;height:162px;padding:0 60px 0 0;overflow:hidden;
-  background:radial-gradient(circle at 18% 70%,rgba(90,190,255,.55),transparent 32%),radial-gradient(circle at 28% 30%,rgba(40,110,255,.5),transparent 40%),linear-gradient(100deg,#06163A 0%,#0E3A8A 40%,#04102A 100%)}
+  background:radial-gradient(circle at 18% 70%,rgba(132,204,22,.5),transparent 32%),radial-gradient(circle at 28% 30%,rgba(4,120,87,.6),transparent 40%),linear-gradient(100deg,#02140E 0%,#064E3B 40%,#010A07 100%)}
 .gj-banner img.bn{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .gj-banner .bn-tag{position:absolute;left:12px;top:10px;color:rgba(255,255,255,.55);font:500 11px var(--font);letter-spacing:.04em}
 .gj-head{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px}
@@ -397,7 +393,7 @@ body.gj .f-box,body.gj .f-codebox{height:48px;border-radius:10px}
 body.gj .f-input,body.gj .f-value,body.gj .f-select,body.gj .f-code,body.gj .f-codebox{font-size:16px}
 body.gj .f-label{font-size:16px}
 body.gj .pin-box{height:48px;border-radius:10px}
-body.gj .f-btn{height:auto;padding:0 4px;background:none;color:#1E6BFF;font-size:18px;font-weight:500;letter-spacing:0}
+body.gj .f-btn{height:auto;padding:0 4px;background:none;color:var(--tab-on);font-size:18px;font-weight:500;letter-spacing:0}
 body.gj .f-btn:disabled{background:none;color:var(--muted)}
 body.gj .row{justify-content:flex-end;margin-top:12px}
 body.gj .row .plain-btn{color:var(--error);font-size:16px;font-weight:600;text-decoration:underline}
@@ -405,10 +401,12 @@ body.gj .btn-primary{height:50px;margin-top:20px;border-radius:100px;font-size:2
 body.gj .btn-primary:not(.ready){opacity:.55}
 body.gj .btn-grey{height:50px;border-radius:100px;font-size:20px;letter-spacing:0}
 body.gj .foot{font-size:16px;font-weight:500}
-body.gj .link{color:#1E6BFF;font-size:16px;font-weight:500}
+body.gj .link{color:var(--tab-on);font-size:16px;font-weight:500}
 body.gj .seg-btn.on{background:var(--grad)}
 body.gj .check-btn,body.gj .ref-toggle{font-size:14px}
 @media (max-width:767px){
+  .soc-pill{font-size:14px;gap:5px}
+  .soc-pill svg{width:17px;height:17px}
   body.gj .page{padding:0}
   body.gj .page-inner{padding:0}
   body.gj .auth{max-width:none;margin-top:0;padding-bottom:0}
@@ -444,7 +442,7 @@ var FLAGS={
 FLAGS.GB='<svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="#012169"/><path d="M0 0l20 20M20 0L0 20" stroke="#FFFFFF" stroke-width="4"/><path d="M0 0l20 20M20 0L0 20" stroke="#C8102E" stroke-width="1.4"/><path d="M10 0v20M0 10h20" stroke="#FFFFFF" stroke-width="6"/><path d="M10 0v20M0 10h20" stroke="#C8102E" stroke-width="3.4"/></svg>';
 FLAGS.CN='<svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="#DE2910"/><path d="M5 3.2l.9 2.7h2.8L6.4 7.6l.9 2.7L5 8.6 2.7 10.3l.9-2.7L1.3 5.9h2.8z" fill="#FFDE00"/></svg>';
 var LANGS=[['GB','English'],['TH','ภาษาไทย'],['KH','ខ្មែរ'],['VN','Tiếng Việt'],['CN','中文']];
-var GJ=CFG.template==='22fun';
+var GJ=CFG.template==='gojudi';
 var COUNTRIES=[['KH','Cambodia','+855'],['TH','Thailand','+66'],['VN','Vietnam','+84'],['MY','Malaysia','+60'],['ID','Indonesia','+62'],['PH','Philippines','+63']];
 var FOCUS=CFG.focus||'';
 if(CFG.theme==='light') document.body.classList.add('light');
@@ -504,13 +502,13 @@ function platIcon(p,mode,sz){
 function socialHTML(pos){
   if(!CFG.social||CFG.social==='off'||(CFG.socialPos||'bottom')!==pos) return '';
   var list=PLAT.slice(0,Math.min(6,+CFG.socialCount||3)), icon=CFG.social==='icon', rows=[];
-  for(var i=0;i<list.length;i+=4) rows.push(list.slice(i,i+4));
+  for(var i=0;i<list.length;i+=3) rows.push(list.slice(i,i+3));
   var row=rows.map(function(r){
     var items=r.map(function(p){
       return icon?'<button type="button" class="soc-ico" data-act="social" data-v="'+p[1]+'" aria-label="Continue with '+p[1]+'" title="'+p[1]+'">'+platIcon(p,'icon',22)+'</button>'
         :'<button type="button" class="soc-pill" style="background:'+p[2]+'" data-act="social" data-v="'+p[1]+'">'+platIcon(p,'pill',20)+'<span>'+p[1]+'</span></button>';
     }).join('');
-    return icon?'<div class="soc-grid" style="grid-template-columns:repeat('+Math.min(4,list.length)+',minmax(0,1fr))">'+items+'</div>':'<div class="soc-row">'+items+'</div>';
+    return '<div class="soc-row'+(icon?' is-icon':'')+(list.length<3?' n'+list.length:'')+'">'+items+'</div>';
   }).join('');
   return pos==='top'?'<div class="soc top">'+row+'<div class="soc-div">or</div></div>':'<div class="soc"><div class="soc-div">Or Connect With</div>'+row+'</div>';
 }
@@ -528,7 +526,7 @@ function pageTitle(){
 function bannerHTML(){
   if(!(GJ&&CFG.banner)) return '';
   return '<div class="gj-banner">'+(typeof BANNER==='string'&&BANNER?'<img class="bn" src="'+BANNER+'" alt="">':'<span class="bn-tag">Banner placeholder</span>')+
-    '<div class="gj-head">'+(typeof GJLOGO==='string'&&GJLOGO?'<span class="gj-logo"><img src="'+GJLOGO+'" alt="22FUN"></span>':'<span class="gj-logo">LOGO</span>')+'<span class="gj-title">'+pageTitle()+'</span></div></div>';
+    '<div class="gj-head">'+(typeof GJLOGO==='string'&&GJLOGO?'<span class="gj-logo"><img src="'+GJLOGO+'" alt="GOJUDI"></span>':'<span class="gj-logo">LOGO</span>')+'<span class="gj-title">'+pageTitle()+'</span></div></div>';
 }
 function head(t,extra){
   var b=GJ&&CFG.banner;
@@ -961,7 +959,7 @@ render();
   /* [key, name, hint, choices, liveSiteValue, pages(optional), defaultIfDifferent] */
   var GROUPS=[
     ['Template',[
-      ['template','Template','',[['ibs','IBKUSDT'],['22fun','22FUN']],'ibs']]],
+      ['template','Template','',[['ibs','22FUN'],['gojudi','GOJUDI']],'ibs']]],
     ['Theme',[
       ['theme','Colour mode','',[['dark','Dark'],['light','Light']],'dark']]],
     ['Try it',[
@@ -984,7 +982,7 @@ render();
     ['Social & language',[
       ['social','Social login','',[['off','Off'],['icon','Icon'],['text','Icon + text']],'off','login signup'],
       ['socialPos','Social position','',[['bottom','Bottom'],['top','Top']],'bottom','login signup'],
-      ['socialCount','Platforms','Max 6, up to 4 per row',[['2','2'],['3','3'],['4','4'],['5','5'],['6','6']],'3','login signup'],
+      ['socialCount','Platforms','Max 6, 3 per row',[['2','2'],['3','3'],['4','4'],['5','5'],['6','6']],'3','login signup'],
       ['lang','Language','Picker under the main button',[['false','Off'],['true','On']],'false']]],
     ['Password / PIN',[
       ['showAuthToggle','Password/PIN switch','Let users choose between the two',[['true','Show'],['false','Hide']],'true'],
@@ -998,10 +996,10 @@ render();
   var PRESETS=[
     ['site','Live site','Exactly like the current site',{},'ibs'],
     ['new','New design','Flag + picker, eye, icons, UPPERCASE',{pinEye:'true',phoneIcon:'flag',codeDropdown:'true',btnIcon:'true',btnCase:'upper'},'ibs'],
-    ['gsite','22FUN design','GOJUDI layout in 22FUN blue',{},'22fun'],
-    ['gplus','22FUN + more','Language, icon social on top, PIN',{lang:'true',social:'icon',socialPos:'top',showAuthToggle:'true',pinEye:'true'},'22fun']
+    ['gsite','GOJUDI design','GOJUDI layout, 22FUN green',{},'gojudi'],
+    ['gplus','GOJUDI + more','Language, icon social on top, PIN',{lang:'true',social:'icon',socialPos:'top',showAuthToggle:'true',pinEye:'true'},'gojudi']
   ];
-  var TPL={ibs:{},'22fun':{banner:'true',accountSwitch:'underline',topTabs:'false',social:'text',socialPos:'bottom',socialCount:'3',smsCode:'true',phoneLayout:'inline',phoneIcon:'flag',codeDropdown:'true',country:'TH',showAuthToggle:'false',pinEye:'true'}};
+  var TPL={ibs:{},'gojudi':{banner:'true',accountSwitch:'underline',topTabs:'false',social:'text',socialPos:'bottom',socialCount:'3',smsCode:'true',phoneLayout:'inline',phoneIcon:'flag',codeDropdown:'true',country:'TH',showAuthToggle:'false',pinEye:'true'}};
   function siteOf(k){var t=TPL[V.template]||TPL.ibs;return (k in t)?t[k]:SITE[k];}
   var NODESIGN=['template'];
   var PAGES=[['login','Login'],['signup','Sign Up'],['forgot','Forgot Password']];
@@ -1012,13 +1010,13 @@ render();
   var DEMO=['walk','showErrors','demoResult'];
   var FOCUS='', HINT='';
   var HINTS={
-    template:{ibs:'IBKUSDT template (live site)','22fun':'22FUN template — banner, underline tabs, 16px fields, social login, blue theme'},
+    template:{ibs:'22FUN template (live site)',gojudi:'GOJUDI layout in 22FUN green — banner, underline tabs, 16px fields, social login'},
     theme:{dark:'Dark theme',light:'Light theme (GHero light colours, brand colour kept)'},
     banner:{'true':'Banner on — logo and title sit on the image','false':'Banner off — logo and title above the form'},
     smsCode:{'true':'SMS code field under the mobile number — tap Get code','false':'No SMS code field'},
     social:{off:'Social login hidden',icon:'Icon-only social buttons',text:'Social buttons with icon + text'},
     socialPos:{bottom:'Social login at the bottom (Or Connect With)',top:'Social login at the top, then “or” (like BK8)'},
-    socialCount:{'2':'2 platforms: Telegram, Google','3':'3 platforms: + WhatsApp','4':'4 platforms: + Facebook (one full row)','5':'5 platforms: + LINE — second row starts','6':'6 platforms (max): + Apple — 4 + 2'},
+    socialCount:{'2':'2 platforms: Telegram, Google','3':'3 platforms: one full row','4':'4 platforms: 3 + 1','5':'5 platforms: 3 + 2','6':'6 platforms (max): 3 + 3'},
     lang:{'true':'Language picker under the main button — tap to change','false':'Language picker hidden'},
     walk:{'true':'Now press Next / Confirm to go through the steps','false':'Manual — fill the fields yourself'},
     showErrors:{'true':'Every validation error is shown','false':'Errors hidden'},
@@ -1044,12 +1042,12 @@ render();
   var SRC=document.getElementById('pageSrc').textContent.replace(/<\\\/script>/g,'<'+'/script>');
   var q=new URLSearchParams(location.search), V={};
   Object.keys(DEF).forEach(function(k){V[k]=q.get(k)||DEF[k];});
-  if(V.template==='22fun') Object.keys(TPL['22fun']).forEach(function(k){ if(!q.get(k)) V[k]=TPL['22fun'][k]; });
+  if(V.template==='gojudi') Object.keys(TPL.gojudi).forEach(function(k){ if(!q.get(k)) V[k]=TPL.gojudi[k]; });
   var $=function(id){return document.getElementById(id);};
   var pv=$('pv'), sc=$('scaler'), stage=$('stage'), panel=$('panel'), varBtn=$('varBtn');
   var openGroups={'Template':true,'Social & language':true,'Theme':true,'Try it':true,'Header':true,'Input field':true,'Password / PIN':true,'Button':false};
 
-  function applies(o){ if(o[0]==='banner'&&V.template!=='22fun') return false; if((o[0]==='socialPos'||o[0]==='socialCount')&&V.social==='off') return false; if(o[0]==='pinEye'&&V.pinStyle!=='boxes') return false; if(o[0]==='phoneIcon'&&V.showIcon!=='true') return false; return !o[5]||o[5].split(' ').indexOf(V.page)>=0;}
+  function applies(o){ if(o[0]==='banner'&&V.template!=='gojudi') return false; if((o[0]==='socialPos'||o[0]==='socialCount')&&V.social==='off') return false; if(o[0]==='pinEye'&&V.pinStyle!=='boxes') return false; if(o[0]==='phoneIcon'&&V.showIcon!=='true') return false; return !o[5]||o[5].split(' ').indexOf(V.page)>=0;}
   function seg(key,choices,site){
     return '<div class="seg" role="group">'+choices.map(function(c){
       var on=V[key]===c[0];
@@ -1059,7 +1057,7 @@ render();
   function isDesign(k){return DEMO.indexOf(k)<0&&NODESIGN.indexOf(k)<0;}
   function changes(){return ALL.filter(function(o){return isDesign(o[0])&&applies(o)&&V[o[0]]!==siteOf(o[0]);}).length;}
   function presetOn(p){return ALL.filter(function(o){return isDesign(o[0]);}).every(function(o){return V[o[0]]===(p[3][o[0]]||siteOf(o[0]));});}
-  function refName(){return V.template==='22fun'?'22FUN design':'live site';}
+  function refName(){return V.template==='gojudi'?'GOJUDI design':'live site';}
   function draw(){
     $('pageSeg').innerHTML=PAGES.map(function(p){var on=V.page===p[0];return '<button type="button" data-k="page" data-v="'+p[0]+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'">'+p[1]+'</button>';}).join('');
     $('widthSeg').innerHTML=WIDTHS.map(function(p){var on=V.w===p[0];return '<button type="button" data-k="w" data-v="'+p[0]+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'">'+p[1]+'</button>';}).join('');
@@ -1076,7 +1074,8 @@ render();
       var gc=rows.filter(function(o){return isDesign(o[0])&&V[o[0]]!==siteOf(o[0]);}).length;
       h+='<details data-g="'+g[0]+'"'+(openGroups[g[0]]?' open':'')+'><summary>'+g[0]+(gc?'<span class="badge">'+gc+'</span>':'')+'</summary><div class="opts">'+
         rows.map(function(o){var ch=isDesign(o[0])&&V[o[0]]!==siteOf(o[0]);
-          return '<div class="opt'+(ch?' changed':'')+'"><div class="opt-top"><span class="opt-name">'+o[1]+'</span>'+(ch?'<button type="button" class="undo" data-k="'+o[0]+'" data-v="'+siteOf(o[0])+'" title="Back to '+refName()+'" aria-label="Back to '+refName()+'">↺</button>':'')+'</div>'+seg(o[0],o[3],isDesign(o[0])?siteOf(o[0]):null)+'</div>';
+          var wide=o[3].length>3||o[3].some(function(c){return c[1].length>10;});
+          return '<div class="opt'+(ch?' changed':'')+(wide?' wide':'')+'"><div class="opt-top"><span class="opt-name">'+o[1]+'</span>'+(ch?'<button type="button" class="undo" data-k="'+o[0]+'" data-v="'+siteOf(o[0])+'" title="Back to '+refName()+'" aria-label="Back to '+refName()+'">↺</button>':'')+'</div>'+seg(o[0],o[3],isDesign(o[0])?siteOf(o[0]):null)+'</div>';
         }).join('')+'</div></details>';
     });
     panel.innerHTML=h+'</div>';
@@ -1105,7 +1104,7 @@ render();
   function load(){ sync(); draw(); write(doc()); size(); }
   document.addEventListener('click',function(e){
     var p=e.target.closest('[data-preset]');
-    if(p){ var pr=PRESETS.filter(function(x){return x[0]===p.dataset.preset;})[0]; ALL.forEach(function(o){ if(isDesign(o[0])) V[o[0]]=pr[3][o[0]]||siteOf(o[0]); }); HINT={site:'Back to the live site look',new:'New design applied — try Mobile and PIN',gsite:'22FUN design (GOJUDI layout, blue theme)',gplus:'22FUN with language, icon social on top and PIN'}[pr[0]]; load(); return; }
+    if(p){ var pr=PRESETS.filter(function(x){return x[0]===p.dataset.preset;})[0]; ALL.forEach(function(o){ if(isDesign(o[0])) V[o[0]]=pr[3][o[0]]||siteOf(o[0]); }); HINT={site:'Back to the live site look',new:'New design applied — try Mobile and PIN',gsite:'GOJUDI design (22FUN green)',gplus:'GOJUDI with language, icon social on top and PIN'}[pr[0]]; load(); return; }
     var b=e.target.closest('button[data-k]'); if(!b) return;
     var k=b.dataset.k; V[k]=b.dataset.v;
     if(k==='template'){ ALL.forEach(function(o){ if(isDesign(o[0])) V[o[0]]=siteOf(o[0]); }); }
@@ -1122,7 +1121,7 @@ render();
   $('open').addEventListener('click',function(){ window.open(URL.createObjectURL(new Blob([doc()],{type:'text/html'})),'_blank'); });
   $('dl').addEventListener('click',function(){
     var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([doc()],{type:'text/html'}));
-    a.download=(V.template==='22fun'?'22fun-':'ibkusdt-')+V.page+(location.search?'-'+location.search.slice(1).replace(/[^a-z0-9]+/gi,'-').slice(0,60):'-site')+'.html'; a.click();
+    a.download=(V.template==='gojudi'?'gojudi-':'22fun-')+V.page+(location.search?'-'+location.search.slice(1).replace(/[^a-z0-9]+/gi,'-').slice(0,60):'-site')+'.html'; a.click();
   });
   load();
 })();
